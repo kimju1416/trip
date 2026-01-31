@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+      body { background-color: #f8fafc; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error("Error:", message);
+      };
+    </script>
+
+    <script type="text/babel">
+      const { useState, useEffect, useMemo } = React;
+
+      // 1. 아이콘 모음
+      const Icons = {
+        Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+        Users: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+        Book: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+        Bed: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>,
+        Calculator: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>,
+        Search: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+        Phone: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+        Info: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+        Edit: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+        MapPin: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+        X: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+        ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+        ChevronUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>,
+        User: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+        Checklist: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+      };
+
+      // 2. 세계시간 및 날씨 컴포넌트
+      const WorldClockWeather = () => {
+        const [time, setTime] = useState(new Date());
+        const [weather, setWeather] = useState({ sf: null, la: null, kr: null });
+
+        useEffect(() => {
+          const timer = setInterval(() => setTime(new Date()), 1000);
+          return () => clearInterval(timer);
+        }, []);
+
+        useEffect(() => {
+          const fetchWeather = async () => {
+            try {
+              const sfRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current_weather=true&timezone=America/Los_Angeles');
+              const sfData = await sfRes.json();
+              const laRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.0522&longitude=-118.2437&current_weather=true&timezone=America/Los_Angeles');
+              const laData = await laRes.json();
+              const krRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true&timezone=Asia/Seoul');
+              const krData = await krRes.json();
+              setWeather({ sf: sfData.current_weather, la: laData.current_weather, kr: krData.current_weather });
+            } catch (error) { console.log('날씨 로드 실패'); }
+          };
+          fetchWeather();
+          const weatherTimer = setInterval(fetchWeather, 600000);
+          return () => clearInterval(weatherTimer);
+        }, []);
+
+        const getWeatherIcon = (code) => {
+          if (code === undefined || code === null) return '🌡️';
+          if (code === 0) return '☀️';
+          if (code <= 3) return '⛅';
+          if (code <= 49) return '🌫️';
+          if (code <= 69) return '🌧️';
+          if (code <= 79) return '🌨️';
+          return '⛈️';
+        };
+
+        const krTime = time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const krDate = time.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' });
+        const getWestTime = (date) => new Date(date.getTime() - (17 * 60 * 60 * 1000)).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const getWestDate = (date) => new Date(date.getTime() - (17 * 60 * 60 * 1000)).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' });
+
+        return (
+          <div className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-4 py-3 shadow-inner">
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col items-center flex-1">
+                <span className="text-blue-200 text-[10px] mb-0.5">🇰🇷 한국</span>
+                <span className="font-bold text-lg">{krTime}</span>
+                <span className="text-blue-300 text-[10px]">{krDate}</span>
+                {weather.kr && <span className="text-[10px] mt-1">{getWeatherIcon(weather.kr.weathercode)} {Math.round(weather.kr.temperature)}°C</span>}
+              </div>
+              <div className="h-12 w-px bg-blue-600"></div>
+              <div className="flex flex-col items-center flex-1">
+                <span className="text-blue-200 text-[10px] mb-0.5">🇺🇸 SF</span>
+                <span className="font-bold text-lg text-yellow-300">{getWestTime(time)}</span>
+                <span className="text-blue-300 text-[10px]">{getWestDate(time)}</span>
+                {weather.sf && <span className="text-[10px] mt-1">{getWeatherIcon(weather.sf.weathercode)} {Math.round(weather.sf.temperature)}°C</span>}
+              </div>
+              <div className="h-12 w-px bg-blue-600"></div>
+              <div className="flex flex-col items-center flex-1">
+                <span className="text-blue-200 text-[10px] mb-0.5">🇺🇸 LA</span>
+                <span className="font-bold text-lg text-yellow-300">{getWestTime(time)}</span>
+                <span className="text-blue-300 text-[10px]">{getWestDate(time)}</span>
+                {weather.la && <span className="text-[10px] mt-1">{getWeatherIcon(weather.la.weathercode)} {Math.round(weather.la.temperature)}°C</span>}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // 3. 체크리스트 데이터
+      const checklistData = [
+        {
+          category: "📄 필수 서류",
+          items: ["여권 (유효기간 6개월 이상)", "ESTA 승인 (출발 72시간 전까지)", "항공권 (e-ticket)", "온라인 사전 체크인 완료 (출발 48시간 전)"]
+        },
+        {
+          category: "💰 금융",
+          items: ["신용카드 (VISA/Master 필수)", "현금 (달러, 소액권 $1, $5, $10 포함)", "체크카드 (해외결제 가능 여부 확인)", "팁용 현금 ($1~$5 다수)"]
+        },
+        {
+          category: "📱 전자기기",
+          items: ["스마트폰 + 충전기", "보조배터리", "멀티어댑터 (미국은 110V, 11자형)", "카메라", "이어폰"]
+        },
+        {
+          category: "👕 의류 (2월 캘리포니아)",
+          items: ["긴팔/얇은 겉옷 (낮 15~20°C)", "두꺼운 외투 (아침/저녁 5~10°C)", "요세미티용 따뜻한 옷 (산악지역 추움)", "편한 운동화 (많이 걸음)", "선글라스", "모자"]
+        },
+        {
+          category: "🧴 세면/의약품",
+          items: ["세면도구 (칫솔, 치약, 면도기)", "개인 상비약 (두통약, 소화제, 지사제, 밴드)", "선크림", "립밤 (건조함)", "물티슈/손소독제"]
+        },
+        {
+          category: "✈️ 기내용",
+          items: ["목베개", "안대/귀마개", "간식"]
+        },
+        {
+          category: "📋 기타",
+          items: ["여행용 캐리어 (23kg 이하)", "작은 백팩/크로스백", "우산/우비", "필기도구", "슬리퍼"]
+        },
+        {
+          category: "📲 미리 준비",
+          items: ["로밍/유심/eSIM 신청", "구글맵 오프라인 지도 다운로드", "주요 앱 설치 (Google 번역 등)", "비상연락처 저장", "카드사 해외결제 알림 설정"]
+        }
+      ];
+      // 4. 정보 모달
+      const InfoModal = ({ info, onClose }) => {
+        const [expandedPoint, setExpandedPoint] = useState(null);
+        if (!info) return null;
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+              <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
+                <h3 className="font-bold text-lg">{info.title}</h3>
+                <button onClick={onClose}><Icons.X /></button>
+              </div>
+              <div className="p-5 max-h-[70vh] overflow-y-auto">
+                {info.img && (
+                  <img 
+                    src={info.img} 
+                    alt={info.title} 
+                    className="w-full h-48 object-cover rounded-lg mb-4 bg-gray-100"
+                  />
+                )}
+                {info.address && (
+                  <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xs text-gray-500">📍 주소</p>
+                    <p className="text-sm text-gray-800 select-all">{info.address}</p>
+                  </div>
+                )}
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm">{info.desc}</p>
+                
+                {info.highlights && (
+                  <div className="mt-4 p-3 bg-amber-50 rounded-lg">
+                    <h4 className="font-bold text-amber-800 text-sm mb-2">⭐ 주요 특징</h4>
+                    <ul className="text-sm text-amber-700 space-y-1">
+                      {info.highlights.map((h, i) => <li key={i}>• {h}</li>)}
+                    </ul>
+                  </div>
+                )}
+                
+                {info.points && (
+                  <div className="mt-4 bg-blue-50 p-3 rounded-lg">
+                    <h4 className="font-bold text-blue-800 text-sm mb-2">💡 관람 포인트</h4>
+                    <div className="space-y-2">
+                      {info.points.map((p, i) => (
+                        <div key={i} className="bg-white rounded-lg overflow-hidden border border-blue-100">
+                          <button onClick={() => setExpandedPoint(expandedPoint === i ? null : i)}
+                            className="w-full p-2 flex justify-between items-center text-left text-sm text-blue-700 hover:bg-blue-50">
+                            <span className="font-medium">{p.name}</span>
+                            {expandedPoint === i ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+                          </button>
+                          {expandedPoint === i && (
+                            <div className="px-3 pb-3 text-xs text-gray-600 leading-relaxed border-t border-blue-100 pt-2 bg-blue-50/50">
+                              {p.detail}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {info.speaker && (
+                  <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
+                    <h4 className="font-bold text-indigo-800 text-sm mb-2 flex items-center gap-1"><Icons.User /> 연사 정보</h4>
+                    <p className="font-bold text-indigo-900">{info.speaker.name}</p>
+                    <p className="text-xs text-indigo-600 mt-1">{info.speaker.title}</p>
+                    <p className="mt-2 text-xs text-indigo-700 leading-relaxed">{info.speaker.bio}</p>
+                    {info.speaker.topic && (
+                      <div className="mt-2 p-2 bg-white rounded border border-indigo-200">
+                        <p className="text-xs text-gray-500">📝 특강 주제</p>
+                        <p className="font-medium text-indigo-800 text-sm">{info.speaker.topic}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {info.url && <a href={info.url} target="_blank" rel="noopener noreferrer" className="mt-4 block text-center text-blue-600 text-sm underline">🔗 공식 웹사이트</a>}
+              </div>
+              <div className="p-4 border-t bg-gray-50 text-right">
+                <button onClick={onClose} className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm">닫기</button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // 5. 여행지 정보 데이터 (전반부)
+      const locationInfos = {
+        google: {
+          title: 'Googleplex (구글 본사)',
+          address: '1600 Amphitheatre Parkway, Mountain View, CA 94043',
+          desc: '전 세계 IT 혁신의 중심, 구글 본사입니다. 자유로운 캠퍼스 분위기와 함께 구글의 역사를 보여주는 상징물들이 곳곳에 있습니다.',
+          highlights: ['안드로이드 동상 공원', '자유로운 캠퍼스 분위기', '구글 방문자 센터'],
+          points: [
+            { name: 'Android Statue Plaza', detail: '역대 안드로이드 OS 버전의 이름을 딴 디저트(도넛, 킷캣, 오레오 등) 모양의 대형 피규어들이 모여 있는 포토존입니다.' },
+            { name: 'Google Visitor Experience', detail: '최신 구글 제품을 체험하고, 구글의 역사와 문화를 엿볼 수 있는 방문자 전용 공간입니다.' },
+            { name: 'GBike', detail: '캠퍼스 내에서 직원들이 타고 다니는 알록달록한 구글 자전거를 찾아보세요.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800',
+          url: 'https://about.google/'
+        },
+        intel: {
+          title: '인텔 뮤지엄 (Intel Museum)',
+          address: '2200 Mission College Blvd, Santa Clara, CA 95054',
+          desc: '반도체의 역사와 미래를 한눈에 볼 수 있는 인텔 본사 내 박물관입니다. 실리콘 칩 제조 과정을 생생하게 배울 수 있습니다.',
+          highlights: ['실제 반도체 웨이퍼 전시', '클린룸(청정실) 체험존', '무어의 법칙'],
+          points: [
+            { name: 'Silicon Wafer', detail: '실제 실리콘 웨이퍼와 칩 내부의 미세 회로를 확대해서 볼 수 있습니다.' },
+            { name: 'The Clean Room', detail: '먼지 한 톨 없는 반도체 제조 시설(Fab)의 작업 환경과 방진복을 입은 마네킹이 전시되어 있습니다.' },
+            { name: 'History of CPU', detail: '초기 4004 프로세서부터 최신 코어 프로세서까지 인텔 CPU의 발전사를 확인해 보세요.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800',
+          url: 'https://www.intel.com/museum'
+        },
+        goldengate: {
+          title: '금문교 (Golden Gate Bridge)',
+          address: 'Golden Gate Bridge, San Francisco, CA',
+          desc: '샌프란시스코의 랜드마크이자 세계에서 가장 아름다운 현수교입니다. 안개 속에 붉은 다리가 드러나는 모습이 장관입니다.',
+          highlights: ['세계적인 랜드마크', '길이 2.7km의 현수교', '도보 횡단 가능'],
+          points: [
+            { name: 'Vista Point', detail: '다리 북쪽에 위치하여 금문교 전체와 샌프란시스코 스카이라인을 동시에 담을 수 있는 최고의 전망대입니다.' },
+            { name: 'Bridge Walk', detail: '해수면 67m 높이의 다리 위를 직접 걸으며 태평양의 바람을 느껴보세요.' },
+            { name: 'Fort Point', detail: '다리 남쪽 끝 아래에 있는 요새로, 다리의 웅장한 하부 구조를 감상하기 좋습니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800',
+          url: 'https://www.goldengate.org/'
+        },
+        pier39: {
+          title: 'Pier 39',
+          address: 'Pier 39, San Francisco, CA 94133',
+          desc: '활기찬 항구 분위기와 먹거리가 가득한 복합 문화 공간입니다. 나무 데크 위에서 쉬고 있는 바다사자들이 명물입니다.',
+          highlights: ['야생 바다사자', '클램 차우더 맛집', '알카트라즈 조망'],
+          points: [
+            { name: 'Sea Lions (K-Dock)', detail: '수백 마리의 바다사자들이 데크 위에 올라와 짖고 노는 모습을 아주 가까이서 볼 수 있습니다.' },
+            { name: 'Boudin Bakery', detail: '샌프란시스코 명물인 시큼한 사워도우 빵에 담긴 따뜻한 조개 스프(Clam Chowder)를 맛보세요.' },
+            { name: 'Alcatraz View', detail: '항구 끝에서 악명 높은 알카트라즈 감옥 섬을 선명하게 조망할 수 있습니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1496196614460-48988a57fccf?w=800',
+          url: 'https://www.pier39.com/'
+        },
+        codeorg: {
+          title: 'CODE.ORG',
+          address: '미국 시애틀/샌프란시스코 거점',
+          desc: '전 세계 학생들에게 컴퓨터 과학 교육 기회를 제공하는 비영리 단체입니다. Hour of Code 캠페인으로 유명합니다.',
+          highlights: ['글로벌 CS 교육 허브', 'Hour of Code', 'AI 윤리 교육'],
+          points: [
+            { name: 'Hour of Code', detail: '전 세계 수억 명의 학생들이 참여한 코딩 캠페인의 성과와 비전을 확인합니다.' },
+            { name: 'AI Education', detail: 'AI가 사회에 미치는 영향과 학생들이 AI를 어떻게 이해하고 활용해야 하는지 교육 자료를 살펴봅니다.' },
+            { name: 'Curriculum', detail: '유치원부터 고등학교까지 체계적으로 구성된 무료 CS 커리큘럼을 소개받습니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800',
+          url: 'https://code.org/'
+        },
+        bellarmine: {
+          title: 'Bellarmine College Prep',
+          address: '960 W Hedding St, San Jose, CA 95126',
+          desc: '1851년 설립된 캘리포니아 명문 사립 고등학교입니다. 예수회 교육 철학을 바탕으로 우수한 인재를 양성합니다.',
+          highlights: ['실리콘밸리 명문 사학', '예수회 교육', '로보틱스 프로그램'],
+          points: [
+            { name: 'Campus Tour', detail: '고풍스러운 역사적 건물과 최신식 과학관이 어우러진 아름다운 캠퍼스를 둘러봅니다.' },
+            { name: 'Robotics Center', detail: '세계적인 로봇 대회(FRC) 우승 팀(Team 254)이 활동하는 최첨단 로보틱스 랩을 견학합니다.' },
+            { name: 'Men for Others', detail: '타인을 위한 봉사를 강조하는 벨라민의 교육 철학과 학생 활동에 대해 듣습니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800',
+          url: 'https://www.bcp.org/'
+        },
+        sflibrary: {
+          title: 'SF 공립 도서관 (Main Library)',
+          address: '100 Larkin St, San Francisco, CA 94102',
+          desc: '샌프란시스코의 지식 허브이자 시민들의 쉼터입니다. 웅장한 아트리움 구조와 자연 채광이 돋보이는 건축물입니다.',
+          highlights: ['개방형 아트리움', '디지털 포용 센터', '다양한 장서'],
+          points: [
+            { name: 'The Atrium', detail: '건물 중앙을 관통하는 거대한 원형 아트리움과 천창을 통해 쏟아지는 빛의 조화를 감상해 보세요.' },
+            { name: 'The Mix', detail: '10대 청소년들이 코딩, 영상 제작, 녹음 등을 자유롭게 할 수 있는 디지털 창작 공간입니다.' },
+            { name: 'Community Hub', detail: '단순한 도서 대출을 넘어 노숙자 지원, 직업 교육 등 지역 사회의 문제를 해결하는 도서관의 역할을 확인합니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=800',
+          url: 'https://sfpl.org/'
+        },
+        stanford: {
+          title: '스탠포드 대학교 (Stanford Univ.)',
+          address: '450 Serra Mall, Stanford, CA 94305',
+          desc: '실리콘밸리의 탄생지이자 세계 최고의 명문 대학입니다. 넓고 아름다운 캠퍼스와 붉은 기와지붕 건물이 인상적입니다.',
+          highlights: ['메인 쿼드(Main Quad)', '후버 타워', '로댕 조각 정원'],
+          points: [
+            { name: 'Main Quad', detail: '스탠포드의 중심 광장으로, 로마네스크 양식의 회랑과 메모리얼 교회가 있는 아름다운 포토존입니다.' },
+            { name: 'Hoover Tower', detail: '캠퍼스 전체를 내려다볼 수 있는 87m 높이의 랜드마크 타워입니다.' },
+            { name: 'Burghers of Calais', detail: '캠퍼스 곳곳에 전시된 로댕의 진품 조각상들을 찾아보세요. (지옥의 문, 칼레의 시민 등)' }
+          ],
+          img: 'https://images.unsplash.com/photo-1564981797816-1043664bf78d?w=800',
+          url: 'https://www.stanford.edu/'
+        },
+        stanfordLecture: {
+          title: '[특강] 황준혁 박사',
+          desc: '스탠포드 대학교에서 진행되는 AI 교육 특강입니다.',
+          speaker: {
+            name: '황준혁 박사',
+            title: '스탠포드 대학 기계공학 박사',
+            bio: '한국 카이스트(KAIST)에서 기술과학을 전공하고, 영국 캠브리지대학 기술학 과정을 수료했습니다. 현재 스탠포드 대학에서 AI와 로보틱스 융합 연구를 진행하고 있으며, 교육 분야에서의 AI 활용에 대해 다양한 강연과 자문 활동을 하고 있습니다.',
+            topic: '최신 AI 연구 방향 및 트렌드가 향후 교육에 미칠 영향'
+          },
+          img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800'
+        },
+        mile17: {
+          title: '17마일 드라이브',
+          address: 'Pebble Beach, CA',
+          desc: '몬터레이 반도의 해안 절경을 따라 달리는 환상적인 드라이브 코스입니다. 바다와 숲, 골프장이 어우러진 풍경이 일품입니다.',
+          highlights: ['론 사이프러스', '페블비치 골프장', '버드 락'],
+          points: [
+            { name: 'Lone Cypress', detail: '250년 넘게 바위 절벽 끝에 홀로 서 있는 나무로, 17마일 드라이브의 상징입니다.' },
+            { name: 'Bird Rock', detail: '수많은 바다새와 물개, 바다사자들이 쉬고 있는 거대한 바위섬입니다.' },
+            { name: 'Pebble Beach', detail: '세계적인 골프 대회가 열리는 명문 골프 코스와 푸른 바다의 조화를 감상하세요.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+          url: 'https://www.pebblebeach.com/17-mile-drive/'
+        },
+        yosemite: {
+          title: '요세미티 국립공원',
+          address: 'Yosemite National Park, CA',
+          desc: '거대한 화강암 절벽과 폭포, 자이언트 세쿼이아 숲이 있는 대자연의 보고입니다. 유네스코 세계자연유산입니다.',
+          highlights: ['터널 뷰', '엘 카피탄', '요세미티 폭포'],
+          points: [
+            { name: 'Tunnel View', detail: '터널을 지나자마자 펼쳐지는 엘 카피탄, 하프 돔, 폭포의 파노라마 뷰 포인트입니다.' },
+            { name: 'El Capitan', detail: '세계 최대의 단일 화강암 바위로, 수직 높이 900m의 웅장함을 자랑합니다.' },
+            { name: 'Yosemite Falls', detail: '북미에서 가장 높은 폭포 중 하나로, 3단으로 떨어지는 물줄기가 장관입니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800',
+          url: 'https://www.nps.gov/yose/'
+        },
+        kerncounty: {
+          title: 'Kern County Museum',
+          address: '3801 Chester Ave, Bakersfield, CA',
+          desc: '캘리포니아 개척 시대의 역사를 보여주는 야외 박물관입니다. 50여 채의 실제 역사 건물을 옮겨와 마을처럼 꾸몄습니다.',
+          highlights: ['파이오니어 빌리지', '석유 산업 전시', '개척 시대 건물'],
+          points: [
+            { name: 'Pioneer Village', detail: '1800년대 후반의 학교, 교회, 대장간, 감옥 등을 거닐며 서부 개척 시대를 체험합니다.' },
+            { name: 'Black Gold', detail: '캘리포니아 석유 산업의 역사를 보여주는 전시관으로, 거대한 시추 장비를 볼 수 있습니다.' },
+            { name: 'Historical Buildings', detail: '실제 사용되었던 건물을 그대로 옮겨와 복원한 것으로, 내부까지 당시 모습이 재현되어 있습니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=800',
+          url: 'https://www.kerncountymuseum.org/'
+        },
+        roybal: {
+          title: 'Roybal Learning Center',
+          address: '1200 W Colton St, Los Angeles, CA',
+          desc: 'LA 다운타운 인근의 대규모 공립 고등학교입니다. 컴퓨터 과학 아카데미 등 혁신적인 교육 프로그램을 운영합니다.',
+          highlights: ['CS 아카데미', '현대적인 학교 시설', '이중언어 교육'],
+          points: [
+            { name: 'CS Academy', detail: '학생들이 코딩, 웹 디자인 등 실무적인 컴퓨터 과학 기술을 배우는 현장을 참관합니다.' },
+            { name: 'School Facilities', detail: '개방적이고 현대적인 캠퍼스 시설을 둘러보며 미국 공립학교의 환경을 확인합니다.' },
+            { name: 'Educational Program', detail: '다문화 학생들을 위한 이중언어 교육 및 진로 연계 프로그램에 대해 알아봅니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800',
+          url: 'https://www.rowlandschools.org/'
+        },
+        science: {
+          title: '캘리포니아 사이언스 센터',
+          address: '700 Exposition Park Dr, Los Angeles, CA',
+          desc: '우주왕복선 엔데버호 실물을 볼 수 있는 서부 최대 과학관입니다. 다양한 체험형 과학 전시가 무료로 운영됩니다.',
+          highlights: ['엔데버호 실물', '우주 항공 전시', '생태계 체험'],
+          points: [
+            { name: 'Space Shuttle Endeavour', detail: '실제 우주를 25번 비행한 거대한 우주왕복선을 바로 눈앞에서 관람합니다.' },
+            { name: 'Ecosystems', detail: '다양한 지구 생태 환경을 재현한 전시관에서 생명의 신비를 체험합니다.' },
+            { name: 'Air & Space', detail: '초기 비행기부터 우주 캡슐까지 항공 우주 기술의 발전사를 살펴봅니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+          url: 'https://californiasciencecenter.org/'
+        },
+        natural: {
+          title: 'LA 자연사 박물관',
+          address: '900 Exposition Blvd, Los Angeles, CA',
+          desc: '공룡 화석부터 보석, 광물까지 방대한 컬렉션을 자랑하는 박물관입니다. 웅장한 공룡 홀이 유명합니다.',
+          highlights: ['공룡 홀(Dinosaur Hall)', '보석 전시관', '자연 정원'],
+          points: [
+            { name: 'Dinosaur Hall', detail: '티라노사우루스 렉스(T-Rex)의 성장 단계별 화석 3개를 동시에 전시한 세계 유일의 공간입니다.' },
+            { name: 'Gem & Mineral', detail: '2,000점 이상의 희귀한 보석과 광물이 전시된 화려한 공간을 둘러보세요.' },
+            { name: 'Nature Gardens', detail: '박물관 야외에 조성된 생태 정원에서 다양한 식물과 곤충을 관찰하며 휴식할 수 있습니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+          url: 'https://nhm.org/'
+        },
+        getty: {
+          title: '게티 센터 (The Getty Center)',
+          address: '1200 Getty Center Dr, Los Angeles, CA',
+          desc: '세계적인 석유 재벌 J. 폴 게티의 수집품을 전시한 미술관입니다. 백색의 아름다운 건축물과 LA 전경이 압권입니다.',
+          highlights: ['반 고흐 <아이리스>', '중앙 정원', 'LA 전망'],
+          points: [
+            { name: 'Masterpieces', detail: '반 고흐, 렘브란트, 모네 등 거장들의 명화를 무료로 감상할 수 있습니다.' },
+            { name: 'Architecture', detail: '리처드 마이어가 설계한 백색 트래버틴 대리석 건물의 곡선미를 감상해 보세요.' },
+            { name: 'The View', detail: '미술관 테라스에서 태평양부터 LA 다운타운까지 펼쳐지는 파노라마 전망을 즐기세요.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1569587112025-0d460e81a126?w=800',
+          url: 'https://www.getty.edu/'
+        },
+        griffith: {
+          title: '그리피스 천문대',
+          address: '2800 E Observatory Rd, Los Angeles, CA',
+          desc: 'LA의 낭만적인 야경을 한눈에 담을 수 있는 곳입니다. 영화 <라라랜드> 촬영지로도 유명합니다.',
+          highlights: ['LA 야경', '할리우드 사인 뷰', '푸코의 진자'],
+          points: [
+            { name: 'City of Stars', detail: '반짝이는 LA의 도심 야경을 가장 아름답게 볼 수 있는 포인트입니다.' },
+            { name: 'Hollywood Sign', detail: '낮에는 산 중턱에 있는 하얀색 할리우드 사인을 선명하게 볼 수 있습니다.' },
+            { name: 'Foucault Pendulum', detail: '지구의 자전을 증명하는 거대한 진자가 움직이는 모습을 관찰해 보세요.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=800',
+          url: 'https://griffithobservatory.org/'
+        },
+        rowland: {
+          title: 'Rowland 교육통합구 (RUSD)',
+          address: '1830 Nogales St, Rowland Heights, CA',
+          desc: '혁신적인 공교육 모델을 제시하는 롤랜드 교육구입니다. 한국계 교육감의 리더십 아래 다양한 교육 프로그램을 운영합니다.',
+          highlights: ['한국계 교육감', '혁신 교육', 'MOU 협력'],
+          speaker: {
+            name: '엘렌 박 (Ellen Park)',
+            title: 'Rowland 교육통합구 교육감',
+            bio: '캘리포니아 대학교에서 교육학 학사/석사 학위를 받았습니다. 한국인 최초로 미국 교육통합구 교육감으로 선출되었습니다. 언어 몰입 교육(Language Immersion) 전문가로, 다문화 환경에서의 교육 혁신을 이끌고 있습니다.',
+            topic: 'MOU 협의 및 교육 혁신 사례 공유'
+          },
+          points: [
+            { name: 'District Office', detail: '미국 교육 행정의 현장을 방문하여 교육 정책과 비전에 대한 설명을 듣습니다.' },
+            { name: 'MOU Partnership', detail: '경북교육청과의 교육 협력 방안을 논의하고 지속적인 교류를 약속합니다.' },
+            { name: 'Innovation', detail: '학생 중심의 맞춤형 교육과 미래 역량을 키우는 혁신적인 커리큘럼을 살펴봅니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800',
+          url: 'https://www.rowlandschools.org/'
+        },
+        rowlandhigh: {
+          title: 'Rowland High School',
+          address: '2000 Otterbein Ave, Rowland Heights, CA',
+          desc: '우수한 학업 성취도와 다양한 특별 활동으로 유명한 명문 공립 고등학교입니다. CTE(직업 교육) 시설이 뛰어납니다.',
+          highlights: ['블루 리본 스쿨', '직업 교육(CTE)', '학생 교류'],
+          points: [
+            { name: 'CTE Facilities', detail: '의료, 공학, 예술 등 다양한 직업 분야를 미리 체험할 수 있는 전문 실습실을 견학합니다.' },
+            { name: 'Class Observation', detail: '실제 수업 현장을 참관하며 미국의 토론식 수업 문화와 학생들의 활동을 지켜봅니다.' },
+            { name: 'Student Life', detail: '넓은 캠퍼스와 체육 시설, 동아리 활동 등 미국 고등학생들의 학교 생활을 엿봅니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1562774053-701939374585?w=800'
+        },
+        kecw: {
+          title: 'LA 한국교육원 (KECLA)',
+          address: '680 Wilshire Pl #200, Los Angeles, CA',
+          desc: '미주 지역 한국어 교육과 뿌리 교육의 산실입니다. 동포 학생들의 정체성 함양을 위한 다양한 프로그램을 지원합니다.',
+          highlights: ['한국어 보급', '뿌리 교육', '한미 교육 협력'],
+          speaker: {
+            name: '강전훈 교육원장',
+            title: 'LA 한국교육원장',
+            bio: '대한민국 교육부 파견 공무원으로, 캘리포니아 등 미 서부 지역의 한국어 교육 지원 및 교육 교류 협력을 총괄하고 있습니다. 현지 정규 학교의 한국어 과목 개설 지원에 힘쓰고 있습니다.',
+            topic: '재미 한인 교육 현황 및 한국-미국 교육 협력 방안'
+          },
+          points: [
+            { name: 'Korean Classes', detail: '현지 학교 내 한국어 정규 과목 개설 현황과 지원 정책에 대해 설명을 듣습니다.' },
+            { name: 'Identity Education', detail: '재미 동포 학생들을 위한 한국 역사, 문화 체험 프로그램 운영 사례를 확인합니다.' },
+            { name: 'Resource Center', detail: '한국 알리기 도서와 자료들이 비치된 공간을 둘러보며 교육원의 역할을 이해합니다.' }
+          ],
+          img: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800'
+        },
+        kimLecture: {
+          title: '[특강] 김선호 박사',
+          desc: 'USC(남가주대학교)에서 진행되는 IT/AI 교육 방향 특강입니다.',
+          speaker: {
+            name: '김선호 박사',
+            title: 'USC 데이터 사이언스 교수',
+            bio: '멀티미디어 시스템, 공간정보 데이터베이스, 기계학습, 빅데이터 분석 분야에서 100여 편의 논문과 저서를 발표한 세계적인 학자입니다. 현재 미국 남가주대학교(USC)에서 데이터 사이언스를 강의하고 있으며, AI와 교육의 융합, 에듀테크 혁신에 대한 연구를 진행하고 있습니다.',
+            topic: 'IT, AI 디지털 및 에듀테크 교육 방향'
+          },
+          img: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800'
+        }
+      };
+
+      // 6. 숙소 정보
+      const hotelData = [
+        { name: 'Aloft Silicon Valley Hotel', dates: '2.8~2.10 (2박)', address: '8200 Gateway Blvd, Newark, CA 94560', phone: '+1-510-494-8800' },
+        { name: 'Holiday Inn Express Merced', dates: '2.10~2.11 (1박)', address: '151 S Parsons Ave, Merced, CA 95341', phone: '+1-209-383-0333' },
+        { name: 'Hampton Inn LA/Santa Clarita', dates: '2.11~2.12 (1박)', address: '25259 The Old Rd, Santa Clarita, CA 91381', phone: '+1-661-253-2400' },
+        { name: 'Fairfield By Marriott LAX', dates: '2.12~2.14 (2박)', address: '888 N Pacific Coast Hwy, El Segundo, CA 90245', phone: '+1-310-322-5900' }
+      ];
+
+      // 7. 식당 정보
+      const restaurantData = [
+        { day: 1, meals: [{ type: '중식', name: '정순이네 밥상', category: '한식', loc: '인천' }, { type: '석식', name: 'Pier 39 자유식', category: '$20 지급', loc: 'SF' }] },
+        { day: 2, meals: [{ type: '중식', name: '한식당', category: '한식', loc: 'SF' }, { type: '석식', name: "Tad's Steakhouse", category: '스테이크 특식', loc: 'SF' }] },
+        { day: 3, meals: [{ type: '중식', name: 'Hokkaido Buffet', category: '일식 뷔페', loc: 'SF' }, { type: '석식', name: "Pedro's Restaurant", category: '멕시칸', loc: '몬터레이' }] },
+        { day: 4, meals: [{ type: '중식', name: 'Steak & Anchor', category: '스테이크', loc: '요세미티' }, { type: '석식', name: 'YeoGiYo', category: '한식', loc: 'LA' }] },
+        { day: 5, meals: [{ type: '중식', name: '자유식', category: '-', loc: 'LA' }, { type: '석식', name: 'Cheesecake Factory', category: '양식 특식', loc: 'LA' }] },
+        { day: 6, meals: [{ type: '중식', name: 'Rowland HS 도시락', category: '도시락', loc: 'LA' }, { type: '석식', name: '북창동 순두부', category: '한식', loc: 'LA' }] },
+        { day: 7, meals: [{ type: '조식', name: '호텔 조식', category: '-', loc: 'LA' }] },
+        { day: 8, meals: [{ type: '석식', name: '정순이네 밥상', category: '한식', loc: '인천' }] }
+      ];
+
+      // 8. 일정 데이터 (1~4일차)
+      const scheduleData = [
+        {
+          day: 1, date: '2/8 (일)', loc: '안동 ✈️ 샌프란시스코',
+          events: [
+            { time: '09:00', title: '경상북도교육청 집결', desc: '인천국제공항으로 출발', type: 'meet' },
+            { time: '12:30', title: '중식', desc: '정순이네 밥상 (한식)', type: 'meal' },
+            { time: '14:00', title: '인천공항 도착', desc: '인원점검 및 출국 수속', type: 'meet' },
+            { time: '16:00', title: '출국 (KE023)', desc: '인천 → 샌프란시스코 (약 10시간 40분)', type: 'flight' },
+            { time: '09:30', title: '🇺🇸 샌프란시스코 도착', desc: '입국 수속 및 가이드 미팅', type: 'arrive' },
+            { time: '13:00', title: '중식', desc: '현지식', type: 'meal' },
+            { time: '14:00', title: 'Googleplex & 인텔뮤지엄', desc: '구글 본사, Intel Museum 탐방', type: 'visit', infoKey: 'google' },
+            { time: '15:30', title: 'Golden Gate & Pier 39', desc: '금문교, 피어 39 관광', type: 'activity', infoKey: 'goldengate' },
+            { time: '17:30', title: '석식 (자유식)', desc: 'Pier 39 / $20 지급', type: 'meal', infoKey: 'pier39' },
+            { time: '18:30', title: '호텔 체크인', desc: 'Aloft Silicon Valley Hotel', type: 'stay' }
+          ]
+        },
+        {
+          day: 2, date: '2/9 (월)', loc: '샌프란시스코',
+          events: [
+            { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
+            { time: '08:00', title: '에듀테크 기업으로 이동', desc: '전용차량', type: 'move' },
+            { time: '09:00', title: '[공식] CODE.ORG 방문', desc: '컴퓨터 과학/AI 교육 비영리 기관', type: 'official', infoKey: 'codeorg' },
+            { time: '11:40', title: '중식', desc: '한식', type: 'meal' },
+            { time: '12:40', title: '[공식] Bellarmine College Prep', desc: '명문 사립고 탐방', type: 'official', infoKey: 'bellarmine' },
+            { time: '14:30', title: '[공식] SF 공립 도서관', desc: '개방형 학습 공간 견학', type: 'official', infoKey: 'sflibrary' },
+            { time: '18:30', title: '석식', desc: "Tad's Steakhouse (특식)", type: 'meal' },
+            { time: '19:30', title: '호텔 이동', desc: 'Aloft Silicon Valley Hotel', type: 'stay' }
+          ]
+        },
+        {
+          day: 3, date: '2/10 (화)', loc: '샌프란 🚌 몬터레이 🚌 머세드',
+          events: [
+            { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
+            { time: '09:00', title: '스탠포드 대학으로 이동', desc: '전용차량', type: 'move' },
+            { time: '10:00', title: '[공식] 스탠포드 대학교', desc: '캠퍼스 투어', type: 'official', infoKey: 'stanford' },
+            { time: '10:30', title: '[특강] 황준혁 박사', desc: 'AI 연구 방향 및 교육 영향', type: 'official', infoKey: 'stanfordLecture' },
+            { time: '12:00', title: '중식', desc: 'Hokkaido Buffet (일식 뷔페)', type: 'meal' },
+            { time: '14:30', title: '17마일 드라이브', desc: '페블비치 해안 절경 감상', type: 'activity', infoKey: 'mile17' },
+            { time: '17:00', title: '석식', desc: "Pedro's Restaurant (멕시칸)", type: 'meal' },
+            { time: '18:00', title: '머세드 이동', desc: 'Holiday Inn Express Merced', type: 'stay' }
+          ]
+        },
+        {
+          day: 4, date: '2/11 (수)', loc: '요세미티 🚌 LA',
+          events: [
+            { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
+            { time: '08:30', title: '요세미티 출발', desc: '전용차량', type: 'move' },
+            { time: '11:00', title: '요세미티 국립공원', desc: '엘 카피탄, 면사포 폭포 탐방', type: 'visit', infoKey: 'yosemite' },
+            { time: '12:00', title: '중식', desc: 'Steak & Anchor Restaurant', type: 'meal' },
+            { time: '13:00', title: 'Kern County Museum 이동', desc: '전용차량', type: 'move' },
+            { time: '14:00', title: 'Kern County Museum', desc: '지역 역사 박물관 관람', type: 'visit', infoKey: 'kerncounty' },
+            { time: '18:00', title: '석식', desc: 'YeoGiYo (한식)', type: 'meal' },
+            { time: '20:00', title: 'LA 도착', desc: 'Hampton Inn LA/Santa Clarita', type: 'stay' }
+          ]
+        },
+        {
+          day: 5, date: '2/12 (목)', loc: 'LA',
+          events: [
+            { time: '06:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
+            { time: '08:00', title: '학교로 출발', desc: '전용차량', type: 'move' },
+            { time: '09:30', title: '[공식] Roybal Learning Center', desc: 'CS아카데미, 로보틱스', type: 'official', infoKey: 'roybal' },
+            { time: '12:00', title: '중식', desc: '자유식', type: 'meal' },
+            { time: '14:00', title: '선택관광 (1호차)', desc: '사이언스센터 & 자연사박물관', type: 'activity', infoKey: 'science' },
+            { time: '14:00', title: '선택관광 (2호차)', desc: 'J. Paul Getty Museum', type: 'activity', infoKey: 'getty' },
+            { time: '18:00', title: '석식', desc: 'Cheesecake Factory (특식)', type: 'meal' },
+            { time: '19:00', title: '그리피스 천문대', desc: 'LA 야경 조망', type: 'activity', infoKey: 'griffith' },
+            { time: '21:00', title: '호텔 체크인', desc: 'Fairfield LAX', type: 'stay' }
+          ]
+        },
+        {
+          day: 6, date: '2/13 (금)', loc: 'LA',
+          events: [
+            { time: '08:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
+            { time: '09:00', title: '롤랜드 교육통합구 이동', desc: '전용차량', type: 'move' },
+            { time: '09:30', title: '[공식] Rowland 교육통합구', desc: 'Ellen Park 교육감 특강 & MOU', type: 'official', infoKey: 'rowland' },
+            { time: '10:30', title: '[공식] Rowland High School', desc: '디지털 혁신 교육 현장 탐방', type: 'official', infoKey: 'rowlandhigh' },
+            { time: '12:30', title: '중식', desc: 'Rowland High School 도시락', type: 'meal' },
+            { time: '13:00', title: '[공식] 한국교육문화원', desc: '기관 방문', type: 'official', infoKey: 'kecw' },
+            { time: '15:30', title: '[특강] 강전훈 교육원장', desc: '재미 한인 교육 현황', type: 'official', infoKey: 'kecw' },
+            { time: '16:40', title: '[특강] 김선호 박사', desc: 'IT, AI 디지털 및 에듀테크 교육', type: 'official', infoKey: 'kimLecture' },
+            { time: '18:00', title: '석식', desc: '북창동 순두부 (한식)', type: 'meal' },
+            { time: '19:00', title: '호텔 이동', desc: 'Fairfield LAX', type: 'stay' }
+          ]
+        },
+        {
+          day: 7, date: '2/14 (토)', loc: 'LA ✈️ 인천',
+          events: [
+            { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
+            { time: '08:00', title: '공항 이동', desc: 'LAX 국제공항으로 출발', type: 'move' },
+            { time: '08:30', title: 'LAX 공항 도착', desc: '출국 수속', type: 'meet' },
+            { time: '10:50', title: 'LA 출발 (KE012)', desc: 'LA → 인천 (약 13시간 30분)', type: 'flight' }
+          ]
+        },
+        {
+          day: 8, date: '2/15 (일)', loc: '인천 🚌 안동',
+          events: [
+            { time: '17:35', title: '🇰🇷 인천공항 도착', desc: '입국 수속 및 짐 찾기', type: 'arrive' },
+            { time: '19:00', title: '석식', desc: '정순이네 밥상 (한식)', type: 'meal' },
+            { time: '20:00', title: '경북교육청 출발', desc: '전용차량', type: 'move' },
+            { time: '23:00', title: '경상북도교육청 도착', desc: '해산', type: 'meet' }
+          ]
+        }
+      ];
+
+      // 9. 인원 데이터
+      const peopleData = [
+        { id: 1, name: '김기활', role: '중등교육과장', group: 'A팀', part: '인솔', room: 'R1', org: '경상북도교육청' },
+        { id: 2, name: '권충호', role: '교장', group: 'A팀', part: '인솔', room: 'R2', org: '길안중학교' },
+        { id: 26, name: '오우환', role: '장학관', group: 'B팀', part: '인솔', room: 'R3', org: '경상북도교육청' },
+        { id: 27, name: '홍명선', role: '교장', group: 'B팀', part: '인솔', room: 'R4', org: '지보중학교' },
+        { id: 3, name: '이광현', role: '교감', group: 'A팀', part: 'A-1조', room: 'R5', org: '도송중학교' },
+        { id: 4, name: '이상겸', role: '장학사', group: 'A팀', part: 'A-1조', room: 'R5', org: '포항교육지원청' },
+        { id: 5, name: '권재엽', role: '교사', group: 'A팀', part: 'A-1조', room: 'R6', org: '포항고등학교' },
+        { id: 6, name: '김병우', role: '교사', group: 'A팀', part: 'A-1조', room: 'R6', org: '길원여자고등학교' },
+        { id: 7, name: '유현승', role: '교사', group: 'A팀', part: 'A-2조', room: 'R7', org: '우석여자고등학교' },
+        { id: 8, name: '정병기', role: '교사', group: 'A팀', part: 'A-2조', room: 'R7', org: '포항제철고등학교' },
+        { id: 9, name: '정현갑', role: '교사', group: 'A팀', part: 'A-2조', room: 'R8', org: '구미여자고등학교' },
+        { id: 10, name: '채윤식', role: '교사', group: 'A팀', part: 'A-2조', room: 'R8', org: '의성여자고등학교' },
+        { id: 11, name: '안중섭', role: '교사', group: 'A팀', part: 'A-3조', room: 'R9', org: '명인중학교' },
+        { id: 12, name: '이성훈', role: '교사', group: 'A팀', part: 'A-3조', room: 'R9', org: '포항영신고등학교' },
+        { id: 13, name: '정정식', role: '교사', group: 'A팀', part: 'A-3조', room: 'R10', org: '경안여자중학교' },
+        { id: 14, name: '전태민', role: '교사', group: 'A팀', part: 'A-3조', room: 'R10', org: '문경공업고등학교' },
+        { id: 15, name: '이윤경', role: '장학사', group: 'A팀', part: 'A-4조', room: 'R11', org: '경상북도교육청' },
+        { id: 16, name: '금성인', role: '장학사', group: 'A팀', part: 'A-4조', room: 'R11', org: '김천교육지원청' },
+        { id: 17, name: '정선혜', role: '장학사', group: 'A팀', part: 'A-4조', room: 'R12', org: '구미교육지원청' },
+        { id: 18, name: '김정옥', role: '장학사', group: 'A팀', part: 'A-4조', room: 'R12', org: '안동교육지원청' },
+        { id: 19, name: '이선희', role: '교사', group: 'A팀', part: 'A-5조', room: 'R13', org: '왜관중학교' },
+        { id: 20, name: '고정현', role: '교사', group: 'A팀', part: 'A-5조', room: 'R13', org: '화랑중학교' },
+        { id: 21, name: '박갑숙', role: '교사', group: 'A팀', part: 'A-5조', room: 'R14', org: '도개중학교' },
+        { id: 22, name: '이은아', role: '교사', group: 'A팀', part: 'A-6조', room: 'R15', org: '경산교육지원청' },
+        { id: 23, name: '오선명', role: '교사', group: 'A팀', part: 'A-6조', room: 'R15', org: '봉곡중학교' },
+        { id: 24, name: '박소연', role: '교사', group: 'A팀', part: 'A-6조', room: 'R16', org: '문명중학교' },
+        { id: 25, name: '전선경', role: '교사', group: 'A팀', part: 'A-6조', room: 'R16', org: '풍산고등학교' },
+        { id: 28, name: '김두령', role: '교사', group: 'B팀', part: 'B-1조', room: 'R17', org: '무학고등학교' },
+        { id: 29, name: '박명철', role: '교사', group: 'B팀', part: 'B-1조', room: 'R17', org: '경주고등학교' },
+        { id: 30, name: '이기학', role: '교사', group: 'B팀', part: 'B-1조', room: 'R18', org: '경북일고등학교' },
+        { id: 31, name: '이희동', role: '교사', group: 'B팀', part: 'B-1조', room: 'R18', org: '석적고등학교' },
+        { id: 32, name: '구본훈', role: '교사', group: 'B팀', part: 'B-2조', room: 'R19', org: '경북체육고등학교' },
+        { id: 33, name: '김승형', role: '교사', group: 'B팀', part: 'B-2조', room: 'R19', org: '경북체육중학교' },
+        { id: 34, name: '김주현', role: '교사', group: 'B팀', part: 'B-2조', room: 'R20', org: '광평중학교' },
+        { id: 35, name: '서율환', role: '교사', group: 'B팀', part: 'B-2조', room: 'R20', org: '운남중학교' },
+        { id: 36, name: '권준욱', role: '교사', group: 'B팀', part: 'B-3조', room: 'R21', org: '환호여자중학교' },
+        { id: 37, name: '노영지', role: '교사', group: 'B팀', part: 'B-3조', room: 'R22', org: '해평중학교' },
+        { id: 38, name: '심재형', role: '주무관', group: 'B팀', part: 'B-3조', room: 'R22', org: '경상북도교육청' },
+        { id: 39, name: '홍효정', role: '장학사', group: 'B팀', part: 'B-4조', room: 'R23', org: '경상북도교육청' },
+        { id: 40, name: '김수정', role: '장학사', group: 'B팀', part: 'B-4조', room: 'R23', org: '포항교육지원청' },
+        { id: 41, name: '김지나', role: '장학사', group: 'B팀', part: 'B-4조', room: 'R24', org: '상주교육지원청' },
+        { id: 42, name: '이현주', role: '장학사', group: 'B팀', part: 'B-4조', room: 'R24', org: '영덕교육지원청' },
+        { id: 43, name: '김병희', role: '교사', group: 'B팀', part: 'B-5조', room: 'R25', org: '인동고등학교' },
+        { id: 44, name: '신명희', role: '교사', group: 'B팀', part: 'B-5조', room: 'R25', org: '구미고등학교' },
+        { id: 45, name: '김혜림', role: '교사', group: 'B팀', part: 'B-5조', room: 'R26', org: '구천중학교' },
+        { id: 46, name: '전진경', role: '교사', group: 'B팀', part: 'B-5조', room: 'R26', org: '성주중학교' },
+        { id: 47, name: '고희영', role: '교사', group: 'B팀', part: 'B-6조', room: 'R27', org: '구미정보고등학교' },
+        { id: 48, name: '신춘희', role: '교사', group: 'B팀', part: 'B-6조', room: 'R27', org: '한일여자고등학교' },
+        { id: 49, name: '금소현', role: '교사', group: 'B팀', part: 'B-6조', room: 'R28', org: '예천중학교' },
+        { id: 50, name: '금민선', role: '교사', group: 'B팀', part: 'B-6조', room: 'R28', org: '영주중학교' }
+      ];
+
+      // 10. 편집위원 데이터
+      const editorData = [
+        { role: '편집위원장', name: '신명희', school: '구미고등학교', task: '보고서 탑재 및 공문 발송' },
+        { role: '편집책임자', name: '권재엽', school: '포항고등학교', task: '편집 책임' },
+        { role: '편집', name: '이희동', school: '석적고등학교', task: '개인별 보고서 수합 및 편집' },
+        { role: '편집', name: '이기학', school: '경북일고등학교', task: '개인별 보고서 수합 및 편집' },
+        { role: 'SF질문', name: '오선명', school: '봉곡중학교', task: 'SF 공식질문 정리' },
+        { role: 'SF질문', name: '이은아', school: '경산교육지원청', task: 'SF 공식질문 정리' },
+        { role: 'LA질문', name: '전선경', school: '풍산고등학교', task: 'LA 공식질문 정리' },
+        { role: 'LA질문', name: '전진경', school: '성주중학교', task: 'LA 공식질문 정리' },
+        { role: 'LA질문', name: '김병우', school: '길원여자고등학교', task: 'LA 공식질문 정리' },
+        { role: 'SF연구', name: '고희영', school: '구미정보고등학교', task: 'SF 교육문화 연구' },
+        { role: 'SF연구', name: '신춘희', school: '한일여자고등학교', task: 'SF 교육문화 연구' },
+        { role: 'LA연구', name: '전태민', school: '문경공업고등학교', task: 'LA 교육문화 연구' },
+        { role: 'LA연구', name: '박소연', school: '문명중학교', task: 'LA 교육문화 연구' },
+        { role: '자료제작', name: '김주현', school: '광평중학교', task: '개요, 공식일정 자료' },
+        { role: '서식/사진', name: '정현갑', school: '구미여자고등학교', task: '서식 마련, 사진' }
+      ];
+      // 11. 메인 앱 컴포넌트
+      const App = () => {
+        const [activeTab, setActiveTab] = useState('schedule');
+        const [selectedDay, setSelectedDay] = useState(1);
+        const [searchTerm, setSearchTerm] = useState('');
+        const [selectedInfo, setSelectedInfo] = useState(null);
+        const [exchangeRate, setExchangeRate] = useState(1440);
+        const [usdAmount, setUsdAmount] = useState('');
+        const [showLegend, setShowLegend] = useState(false);
+
+        useEffect(() => {
+          fetch('https://api.frankfurter.app/latest?from=USD&to=KRW')
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.rates && data.rates.KRW) {
+                setExchangeRate(Math.floor(data.rates.KRW));
+              }
+            })
+            .catch(err => console.error("환율 로드 실패:", err));
+        }, []);
+
+        const filteredPeople = useMemo(() => {
+          if (!searchTerm) return peopleData;
+          return peopleData.filter(p => p.name.includes(searchTerm) || p.part.includes(searchTerm) || p.room.includes(searchTerm) || p.group.includes(searchTerm) || p.org.includes(searchTerm));
+        }, [searchTerm]);
+
+        const getEventColor = (type) => {
+          const colors = { 
+            official: 'border-l-4 border-blue-600 bg-blue-50', 
+            meal: 'border-l-4 border-orange-400 bg-orange-50', 
+            move: 'border-l-4 border-gray-400 bg-gray-50', 
+            flight: 'border-l-4 border-purple-500 bg-purple-50', 
+            visit: 'border-l-4 border-green-500 bg-green-50', 
+            activity: 'border-l-4 border-teal-500 bg-teal-50', 
+            stay: 'border-l-4 border-indigo-900 bg-indigo-50', 
+            arrive: 'border-l-4 border-red-500 bg-red-50', 
+            meet: 'border-l-4 border-yellow-500 bg-yellow-50' 
+          };
+          return colors[type] || 'border-l-4 border-gray-300 bg-white';
+        };
+
+        const getRoleColor = (role) => {
+          if (role === '편집위원장') return 'bg-purple-600';
+          if (role === '편집책임자') return 'bg-blue-600';
+          if (role.includes('편집')) return 'bg-green-600';
+          if (role.includes('질문')) return 'bg-orange-500';
+          if (role.includes('연구')) return 'bg-teal-600';
+          return 'bg-gray-600';
+        };
+
+        return (
+          <div className="flex flex-col h-screen bg-slate-50 max-w-md mx-auto shadow-2xl overflow-hidden font-sans border-x border-gray-200">
+            <div className="bg-blue-900 text-white z-20 shadow-md">
+              <div className="p-4 text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                   <div className="bg-white rounded-full p-1 w-8 h-8 flex items-center justify-center shadow-sm flex-shrink-0">
+                     <img 
+                       src="https://raw.githubusercontent.com/kimju1416/pefit/77cc10dcba185fd4ee0e34c26c5099db81b78cb9/20260131_111629.png" 
+                       alt="경북교육청" 
+                       className="w-full h-full object-contain"
+                     />
+                   </div>
+                   <h1 className="text-lg font-bold">2025학년도 중등교육 핵심요원</h1>
+                </div>
+                
+                <p className="text-blue-200 text-sm mt-1">국외현장연수 (미국 서부)</p>
+                <p className="text-xs text-blue-300 mt-1">2026.02.08 ~ 02.15 (6박 8일) | 50명</p>
+              </div>
+              <WorldClockWeather />
+            </div>
+
+            <div className="flex-1 overflow-y-auto bg-slate-50 pb-20">
+              {activeTab === 'schedule' && (
+                <div>
+                  <div className="sticky top-0 bg-white shadow-sm z-10 p-2 flex gap-2 overflow-x-auto scrollbar-hide">
+                    {scheduleData.map((data) => (
+                      <button key={data.day} onClick={() => setSelectedDay(data.day)} className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold ${selectedDay === data.day ? 'bg-blue-700 text-white shadow-md' : 'bg-white text-gray-500 border'}`}>{data.day}일차</button>
+                    ))}
+                  </div>
+                  
+                  <div className="px-4 pt-3">
+                    <button onClick={() => setShowLegend(!showLegend)} className="flex items-center gap-1 text-xs text-gray-500 font-bold bg-white border px-3 py-1.5 rounded-full shadow-sm">
+                      🎨 일정 색상 범례 {showLegend ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+                    </button>
+                    {showLegend && (
+                      <div className="mt-2 grid grid-cols-2 gap-2 bg-white p-3 rounded-lg border text-xs">
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-600"></div>공식 일정</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-orange-400"></div>식사</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gray-400"></div>이동</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-purple-500"></div>항공</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div>관광지</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-teal-500"></div>액티비티</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-indigo-900"></div>숙소</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div>도착</div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-yellow-500"></div>집결/해산</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4">
+                    <div className="mb-4">
+                      <h2 className="text-xl font-bold text-gray-800">{scheduleData[selectedDay-1].date}</h2>
+                      <p className="text-blue-600 font-medium flex items-center gap-1"><Icons.MapPin /> {scheduleData[selectedDay-1].loc}</p>
+                    </div>
+                    <div className="space-y-3">
+                      {scheduleData[selectedDay-1].events.map((event, idx) => (
+                        <div key={idx} className={`p-4 rounded-xl shadow-sm ${getEventColor(event.type)}`}>
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-blue-900 font-bold text-lg">{event.time}</span>
+                            {event.type === 'official' && <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">공식</span>}
+                            {event.type === 'flight' && <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded-full font-bold">항공</span>}
+                            {event.type === 'stay' && <span className="text-[10px] bg-indigo-900 text-white px-2 py-0.5 rounded-full font-bold">숙소</span>}
+                          </div>
+                          <h3 className="text-gray-900 font-bold text-lg">{event.title}</h3>
+                          <p className="text-gray-600 text-sm mt-1">{event.desc}</p>
+                          {event.infoKey && <button onClick={() => setSelectedInfo(locationInfos[event.infoKey])} className="mt-3 flex items-center gap-1 text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-50"><Icons.Info /> 정보 보기</button>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'people' && (
+                <div className="p-4">
+                  <div className="bg-white p-3 rounded-lg shadow-sm border mb-4 sticky top-0 z-10">
+                    <div className="flex items-center gap-2">
+                      <Icons.Search />
+                      <input type="text" placeholder="이름, 소속, 조, 방번호 검색..." className="w-full outline-none text-gray-700" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                      {searchTerm && <button onClick={() => setSearchTerm('')}><Icons.X /></button>}
+                    </div>
+                  </div>
+                  <div className="mb-3 text-sm text-gray-500 text-right">총 {filteredPeople.length}명</div>
+                  <div className="grid gap-3">
+                    {filteredPeople.map((person) => (
+                      <div key={person.id} className="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg ${person.part === '인솔' ? 'bg-indigo-600' : person.group === 'A팀' ? 'bg-blue-500' : 'bg-green-600'}`}>
+                            {person.id}
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-800 text-lg">{person.name} <span className="text-xs font-normal text-gray-500">{person.role}</span></h3>
+                            <p className="text-xs text-gray-400">{person.org}</p>
+                            <div className="flex gap-2 text-sm mt-0.5">
+                              <span className={`font-bold ${person.group === 'A팀' ? 'text-blue-600' : 'text-green-600'}`}>{person.group}</span>
+                              <span className="text-gray-400">|</span>
+                              <span className="text-gray-600">{person.part}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right bg-gray-50 p-2 rounded-lg min-w-[60px]">
+                          <span className="block text-[10px] text-gray-400 font-bold">ROOM</span>
+                          <span className="font-bold text-gray-800 text-xl">{person.room}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {filteredPeople.length === 0 && <div className="text-center text-gray-400 py-10">검색 결과가 없습니다.</div>}
+                </div>
+              )}
+
+              {activeTab === 'editor' && (
+                <div className="p-4">
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <div className="bg-indigo-50 px-4 py-3 border-b font-bold text-indigo-800 flex items-center gap-2"><Icons.Edit /> 보고서 편집위원단 (15명)</div>
+                    <div className="divide-y">
+                      {editorData.map((editor, idx) => (
+                        <div key={idx} className="p-4 hover:bg-gray-50">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-bold text-gray-800"><span className="text-blue-600 mr-1">{idx + 1}.</span>{editor.name} <span className="text-xs font-normal text-gray-500">({editor.school})</span></span>
+                            <span className={`text-xs text-white px-2 py-0.5 rounded font-bold ${getRoleColor(editor.role)}`}>{editor.role}</span>
+                          </div>
+                          <p className="text-sm text-gray-600">{editor.task}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'info' && (
+                <div className="p-4 space-y-5">
+                  <div className="bg-white p-5 rounded-xl shadow-sm border border-blue-100">
+                    <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm"><Icons.Calculator /> 환율 계산기</h2>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-gray-500">1 USD =</span>
+                        <input type="number" value={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} className="bg-gray-50 border rounded px-2 py-1 w-20 font-bold text-blue-700 outline-none" />
+                        <span className="text-gray-500">원</span>
+                        <span className="text-xs text-gray-400 ml-auto">*실시간 적용</span>
+                      </div>
+                      <div className="relative">
+                        <input type="number" placeholder="달러 입력 ($)" value={usdAmount} onChange={(e) => setUsdAmount(e.target.value)} className="w-full text-2xl font-bold text-gray-900 border-b-2 border-blue-500 pb-1 outline-none placeholder-gray-300" />
+                        <span className="absolute right-0 bottom-2 text-gray-400 font-bold">$</span>
+                      </div>
+                      <div className="bg-blue-50 rounded-lg p-3 text-right">
+                        <span className="text-xs text-blue-600 mr-2">예상 금액</span>
+                        <span className="text-xl font-bold text-blue-800">{usdAmount ? Math.floor(usdAmount * exchangeRate).toLocaleString() : '0'}</span>
+                        <span className="text-sm font-medium ml-1 text-blue-800">원</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <div className="bg-indigo-50 px-4 py-3 border-b font-bold text-indigo-800 flex items-center gap-2"><Icons.Bed /> 숙소 정보</div>
+                    <div className="p-4 space-y-4 text-sm">
+                      {hotelData.map((hotel, idx) => (
+                        <div key={idx} className={idx < hotelData.length - 1 ? 'pb-4 border-b' : ''}>
+                          <h4 className="font-bold text-blue-800 flex justify-between">🏨 {hotel.name}<span className="text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-500">{hotel.dates}</span></h4>
+                          <p className="text-gray-700 mt-1 select-all">{hotel.address}</p>
+                          <p className="text-gray-500 text-xs mt-1">📞 {hotel.phone}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <div className="bg-orange-50 px-4 py-3 border-b font-bold text-orange-800 flex items-center gap-2">🍽️ 식당 정보</div>
+                    <div className="p-4 space-y-3 text-sm">
+                      {restaurantData.map((day, idx) => (
+                        <div key={idx} className={idx < restaurantData.length - 1 ? 'pb-3 border-b' : ''}>
+                          <h4 className="font-bold text-orange-700 mb-2">{day.day}일차</h4>
+                          <div className="space-y-1">
+                            {day.meals.map((meal, mIdx) => (
+                              <div key={mIdx} className="flex justify-between text-gray-700">
+                                <span className="font-medium">{meal.type}: {meal.name}</span>
+                                <span className="text-gray-500 text-xs">{meal.category} | {meal.loc}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-red-50 rounded-xl shadow-sm border border-red-100 p-4">
+                    <h3 className="font-bold text-red-800 flex items-center gap-2 mb-3 text-sm"><Icons.Phone /> 비상 연락망</h3>
+                    <div className="space-y-2 text-sm text-red-700">
+                      <div className="flex justify-between"><span>🇰🇷 이종민 이사:</span><span className="font-bold select-all">010-9675-9224</span></div>
+                      <div className="flex justify-between"><span>🚑 영사 콜센터:</span><span className="font-bold select-all">+82-2-3210-0404</span></div>
+                      <div className="flex justify-between"><span>🆘 미국 긴급전화:</span><span className="font-bold select-all">911</span></div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 rounded-xl shadow-sm border border-amber-100 p-4">
+                    <h3 className="font-bold text-amber-800 flex items-center gap-2 mb-3 text-sm">✈️ 항공편 정보</h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="bg-white p-3 rounded-lg"><div className="font-bold text-gray-800">🛫 출국 (2/8)</div><div className="text-gray-600 mt-1">KE023 | 인천 16:00 → 샌프란 09:30</div></div>
+                      <div className="bg-white p-3 rounded-lg"><div className="font-bold text-gray-800">🛬 귀국 (2/14-15)</div><div className="text-gray-600 mt-1">KE012 | LA 10:50 → 인천 17:35(+1)</div></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'checklist' && (
+                <div className="p-4">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><Icons.Checklist /> 체크리스트</h2>
+                  <div className="space-y-4">
+                    {checklistData.map((section, idx) => (
+                      <div key={idx} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div className="bg-gray-100 px-4 py-3 border-b font-bold text-gray-800">{section.category}</div>
+                        <ul className="p-4 space-y-2">
+                          {section.items.map((item, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <span className="mt-0.5 text-blue-500 font-bold">✔</span>
+                              <span className="text-sm text-gray-700">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white border-t flex justify-around items-center absolute bottom-0 w-full max-w-md pb-safe z-30">
+              <button onClick={() => setActiveTab('schedule')} className={`p-3 flex flex-col items-center gap-1 ${activeTab === 'schedule' ? 'text-blue-700' : 'text-gray-400'}`}><Icons.Calendar /><span className="text-[10px] font-bold">일정표</span></button>
+              <button onClick={() => setActiveTab('people')} className={`p-3 flex flex-col items-center gap-1 ${activeTab === 'people' ? 'text-blue-700' : 'text-gray-400'}`}><Icons.Users /><span className="text-[10px] font-bold">명단</span></button>
+              <button onClick={() => setActiveTab('editor')} className={`p-3 flex flex-col items-center gap-1 ${activeTab === 'editor' ? 'text-blue-700' : 'text-gray-400'}`}><Icons.Edit /><span className="text-[10px] font-bold">편집위원</span></button>
+              <button onClick={() => setActiveTab('info')} className={`p-3 flex flex-col items-center gap-1 ${activeTab === 'info' ? 'text-blue-700' : 'text-gray-400'}`}><Icons.Book /><span className="text-[10px] font-bold">정보</span></button>
+              <button onClick={() => setActiveTab('checklist')} className={`p-3 flex flex-col items-center gap-1 ${activeTab === 'checklist' ? 'text-blue-700' : 'text-gray-400'}`}><Icons.Checklist /><span className="text-[10px] font-bold">체크리스트</span></button>
+            </div>
+
+            <InfoModal info={selectedInfo} onClose={() => setSelectedInfo(null)} />
+          </div>
+        );
+      };
+
+      // 12. 렌더링
+      try {
+        const rootElement = document.getElementById('root');
+        if (rootElement) {
+          const root = ReactDOM.createRoot(rootElement);
+          root.render(<App />);
+        } else {
+          alert('Root 요소를 찾을 수 없습니다.');
+        }
+      } catch (error) {
+        alert('렌더링 오류: ' + error.message);
+      }
+    </script>
+  </body>
+</html>
