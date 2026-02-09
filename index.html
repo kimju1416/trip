@@ -113,21 +113,21 @@
                 <span className="text-blue-200 text-[10px] mb-0.5">🇰🇷 한국</span>
                 <span className="font-bold text-lg">{krTimeStr}</span>
                 <span className="text-blue-300 text-[10px]">{krDateStr}</span>
-                {weather.kr && <span className="text-[10px] mt-1">{getWeatherIcon(weather.kr.weathercode)} {Math.round(weather.kr.temperature)}°C</span>}
+                {weather.kr && <div className="flex items-center mt-1"><span className="text-xl mr-1">{getWeatherIcon(weather.kr.weathercode)}</span><span className="text-xs">{Math.round(weather.kr.temperature)}°C</span></div>}
               </div>
               <div className="h-12 w-px bg-blue-600"></div>
               <div className="flex flex-col items-center flex-1">
                 <span className="text-blue-200 text-[10px] mb-0.5">🇺🇸 SF</span>
                 <span className="font-bold text-lg text-yellow-300">{usTimeStr}</span>
                 <span className="text-blue-300 text-[10px]">{usDateStr}</span>
-                {weather.sf && <span className="text-[10px] mt-1">{getWeatherIcon(weather.sf.weathercode)} {Math.round(weather.sf.temperature)}°C</span>}
+                {weather.sf && <div className="flex items-center mt-1"><span className="text-xl mr-1">{getWeatherIcon(weather.sf.weathercode)}</span><span className="text-xs">{Math.round(weather.sf.temperature)}°C</span></div>}
               </div>
               <div className="h-12 w-px bg-blue-600"></div>
               <div className="flex flex-col items-center flex-1">
                 <span className="text-blue-200 text-[10px] mb-0.5">🇺🇸 LA</span>
                 <span className="font-bold text-lg text-yellow-300">{usTimeStr}</span>
                 <span className="text-blue-300 text-[10px]">{usDateStr}</span>
-                {weather.la && <span className="text-[10px] mt-1">{getWeatherIcon(weather.la.weathercode)} {Math.round(weather.la.temperature)}°C</span>}
+                {weather.la && <div className="flex items-center mt-1"><span className="text-xl mr-1">{getWeatherIcon(weather.la.weathercode)}</span><span className="text-xs">{Math.round(weather.la.temperature)}°C</span></div>}
               </div>
             </div>
           </div>
@@ -991,3 +991,4 @@
     </script>
   </body>
 </html>
+
