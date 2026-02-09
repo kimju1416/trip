@@ -520,6 +520,13 @@
         {
           day: 2, date: '2/9 (월)', loc: '샌프란시스코',
           events: [
+            { 
+              time: '', 
+              title: '📸 일정 안내', 
+              desc: '참고 이미지', 
+              type: 'image', 
+              imageUrl: 'https://raw.githubusercontent.com/kimju1416/pefit/main/22.png'
+            },
             { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
             { time: '08:00', title: '구글(Google)로 이동', desc: 'Googleplex, 인텔뮤지엄 방문', type: 'visit', infoKey: 'google' },
             { time: '12:00', title: '중식', desc: '현지식', type: 'meal' },
@@ -707,7 +714,8 @@
             activity: 'border-l-4 border-teal-500 bg-teal-50', 
             stay: 'border-l-4 border-indigo-900 bg-indigo-50', 
             arrive: 'border-l-4 border-red-500 bg-red-50', 
-            meet: 'border-l-4 border-yellow-500 bg-yellow-50' 
+            meet: 'border-l-4 border-yellow-500 bg-yellow-50',
+            image: 'border-none bg-white p-0'
           };
           return colors[type] || 'border-l-4 border-gray-300 bg-white';
         };
@@ -778,15 +786,23 @@
                     <div className="space-y-3">
                       {scheduleData[selectedDay-1].events.map((event, idx) => (
                         <div key={idx} className={`p-4 rounded-xl shadow-sm ${getEventColor(event.type)}`}>
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="text-blue-900 font-bold text-lg">{event.time}</span>
-                            {event.type === 'official' && <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">공식</span>}
-                            {event.type === 'flight' && <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded-full font-bold">항공</span>}
-                            {event.type === 'stay' && <span className="text-[10px] bg-indigo-900 text-white px-2 py-0.5 rounded-full font-bold">숙소</span>}
-                          </div>
-                          <h3 className="text-gray-900 font-bold text-lg">{event.title}</h3>
-                          <p className="text-gray-600 text-sm mt-1">{event.desc}</p>
-                          {event.infoKey && <button onClick={() => setSelectedInfo(locationInfos[event.infoKey])} className="mt-3 flex items-center gap-1 text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-50"><Icons.Info /> 정보 보기</button>}
+                          {event.type === 'image' ? (
+                            <div className="w-full">
+                               <img src={event.imageUrl} alt="일정 이미지" className="w-full rounded-lg shadow-sm" />
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="text-blue-900 font-bold text-lg">{event.time}</span>
+                                {event.type === 'official' && <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">공식</span>}
+                                {event.type === 'flight' && <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded-full font-bold">항공</span>}
+                                {event.type === 'stay' && <span className="text-[10px] bg-indigo-900 text-white px-2 py-0.5 rounded-full font-bold">숙소</span>}
+                              </div>
+                              <h3 className="text-gray-900 font-bold text-lg">{event.title}</h3>
+                              <p className="text-gray-600 text-sm mt-1">{event.desc}</p>
+                              {event.infoKey && <button onClick={() => setSelectedInfo(locationInfos[event.infoKey])} className="mt-3 flex items-center gap-1 text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-50"><Icons.Info /> 정보 보기</button>}
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
