@@ -48,11 +48,11 @@
 
       // 2. 세계시간 및 날씨 컴포넌트
       const WorldClockWeather = () => {
-        const [time, setTime] = useState(new Date());
+        const [now, setNow] = useState(new Date());
         const [weather, setWeather] = useState({ sf: null, la: null, kr: null });
 
         useEffect(() => {
-          const timer = setInterval(() => setTime(new Date()), 1000);
+          const timer = setInterval(() => setNow(new Date()), 1000);
           return () => clearInterval(timer);
         }, []);
 
@@ -83,32 +83,50 @@
           return '⛈️';
         };
 
-        const krTime = time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-        const krDate = time.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' });
-        const getWestTime = (date) => new Date(date.getTime() - (17 * 60 * 60 * 1000)).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-        const getWestDate = (date) => new Date(date.getTime() - (17 * 60 * 60 * 1000)).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' });
+        const formatTime = (date, timeZone) => {
+          return date.toLocaleTimeString('ko-KR', { 
+            timeZone: timeZone,
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false 
+          });
+        };
+
+        const formatDate = (date, timeZone) => {
+          return date.toLocaleDateString('ko-KR', { 
+            timeZone: timeZone,
+            month: 'numeric', 
+            day: 'numeric', 
+            weekday: 'short' 
+          });
+        };
+
+        const krTimeStr = formatTime(now, 'Asia/Seoul');
+        const krDateStr = formatDate(now, 'Asia/Seoul');
+        const usTimeStr = formatTime(now, 'America/Los_Angeles');
+        const usDateStr = formatDate(now, 'America/Los_Angeles');
 
         return (
           <div className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-4 py-3 shadow-inner">
             <div className="flex justify-between items-center">
               <div className="flex flex-col items-center flex-1">
                 <span className="text-blue-200 text-[10px] mb-0.5">🇰🇷 한국</span>
-                <span className="font-bold text-lg">{krTime}</span>
-                <span className="text-blue-300 text-[10px]">{krDate}</span>
+                <span className="font-bold text-lg">{krTimeStr}</span>
+                <span className="text-blue-300 text-[10px]">{krDateStr}</span>
                 {weather.kr && <span className="text-[10px] mt-1">{getWeatherIcon(weather.kr.weathercode)} {Math.round(weather.kr.temperature)}°C</span>}
               </div>
               <div className="h-12 w-px bg-blue-600"></div>
               <div className="flex flex-col items-center flex-1">
                 <span className="text-blue-200 text-[10px] mb-0.5">🇺🇸 SF</span>
-                <span className="font-bold text-lg text-yellow-300">{getWestTime(time)}</span>
-                <span className="text-blue-300 text-[10px]">{getWestDate(time)}</span>
+                <span className="font-bold text-lg text-yellow-300">{usTimeStr}</span>
+                <span className="text-blue-300 text-[10px]">{usDateStr}</span>
                 {weather.sf && <span className="text-[10px] mt-1">{getWeatherIcon(weather.sf.weathercode)} {Math.round(weather.sf.temperature)}°C</span>}
               </div>
               <div className="h-12 w-px bg-blue-600"></div>
               <div className="flex flex-col items-center flex-1">
                 <span className="text-blue-200 text-[10px] mb-0.5">🇺🇸 LA</span>
-                <span className="font-bold text-lg text-yellow-300">{getWestTime(time)}</span>
-                <span className="text-blue-300 text-[10px]">{getWestDate(time)}</span>
+                <span className="font-bold text-lg text-yellow-300">{usTimeStr}</span>
+                <span className="text-blue-300 text-[10px]">{usDateStr}</span>
                 {weather.la && <span className="text-[10px] mt-1">{getWeatherIcon(weather.la.weathercode)} {Math.round(weather.la.temperature)}°C</span>}
               </div>
             </div>
@@ -235,7 +253,7 @@
         );
       };
 
-      // 5. 여행지 정보 데이터 (전반부)
+      // 5. 여행지 정보 데이터
       const locationInfos = {
         google: {
           title: 'Googleplex (구글 본사)',
@@ -316,14 +334,20 @@
           url: 'https://www.bcp.org/'
         },
         sflibrary: {
-          title: 'SF 공립 도서관 (Main Library)',
+          title: 'SF 공립 도서관 & 황준혁 박사',
           address: '100 Larkin St, San Francisco, CA 94102',
-          desc: '샌프란시스코의 지식 허브이자 시민들의 쉼터입니다. 웅장한 아트리움 구조와 자연 채광이 돋보이는 건축물입니다.',
-          highlights: ['개방형 아트리움', '디지털 포용 센터', '다양한 장서'],
+          desc: '샌프란시스코의 지식 허브이자 시민들의 쉼터입니다. 이곳에서 스탠포드 출신 황준혁 박사님과의 미팅이 진행됩니다.',
+          highlights: ['개방형 아트리움', '황준혁 박사 미팅', '디지털 포용'],
+          speaker: {
+            name: '황준혁 박사',
+            title: '스탠포드 대학 기계공학 박사',
+            bio: '한국 카이스트(KAIST)에서 기술과학을 전공하고, 현재 스탠포드 대학에서 AI와 로보틱스 융합 연구를 진행하고 있습니다.',
+            topic: '최신 AI 연구 방향 및 트렌드'
+          },
           points: [
             { name: 'The Atrium', detail: '건물 중앙을 관통하는 거대한 원형 아트리움과 천창을 통해 쏟아지는 빛의 조화를 감상해 보세요.' },
-            { name: 'The Mix', detail: '10대 청소년들이 코딩, 영상 제작, 녹음 등을 자유롭게 할 수 있는 디지털 창작 공간입니다.' },
-            { name: 'Community Hub', detail: '단순한 도서 대출을 넘어 노숙자 지원, 직업 교육 등 지역 사회의 문제를 해결하는 도서관의 역할을 확인합니다.' }
+            { name: 'Community Hub', detail: '단순한 도서 대출을 넘어 노숙자 지원, 직업 교육 등 지역 사회의 문제를 해결하는 도서관의 역할을 확인합니다.' },
+            { name: 'Meeting', detail: '현지 연구원과의 만남을 통해 미국 내 연구 환경과 비전에 대한 이야기를 나눕니다.' }
           ],
           img: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=800',
           url: 'https://sfpl.org/'
@@ -340,17 +364,6 @@
           ],
           img: 'https://images.unsplash.com/photo-1564981797816-1043664bf78d?w=800',
           url: 'https://www.stanford.edu/'
-        },
-        stanfordLecture: {
-          title: '[특강] 황준혁 박사',
-          desc: '스탠포드 대학교에서 진행되는 AI 교육 특강입니다.',
-          speaker: {
-            name: '황준혁 박사',
-            title: '스탠포드 대학 기계공학 박사',
-            bio: '한국 카이스트(KAIST)에서 기술과학을 전공하고, 영국 캠브리지대학 기술학 과정을 수료했습니다. 현재 스탠포드 대학에서 AI와 로보틱스 융합 연구를 진행하고 있으며, 교육 분야에서의 AI 활용에 대해 다양한 강연과 자문 활동을 하고 있습니다.',
-            topic: '최신 AI 연구 방향 및 트렌드가 향후 교육에 미칠 영향'
-          },
-          img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800'
         },
         mile17: {
           title: '17마일 드라이브',
@@ -391,19 +404,6 @@
           img: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=800',
           url: 'https://www.kerncountymuseum.org/'
         },
-        roybal: {
-          title: 'Roybal Learning Center',
-          address: '1200 W Colton St, Los Angeles, CA',
-          desc: 'LA 다운타운 인근의 대규모 공립 고등학교입니다. 컴퓨터 과학 아카데미 등 혁신적인 교육 프로그램을 운영합니다.',
-          highlights: ['CS 아카데미', '현대적인 학교 시설', '이중언어 교육'],
-          points: [
-            { name: 'CS Academy', detail: '학생들이 코딩, 웹 디자인 등 실무적인 컴퓨터 과학 기술을 배우는 현장을 참관합니다.' },
-            { name: 'School Facilities', detail: '개방적이고 현대적인 캠퍼스 시설을 둘러보며 미국 공립학교의 환경을 확인합니다.' },
-            { name: 'Educational Program', detail: '다문화 학생들을 위한 이중언어 교육 및 진로 연계 프로그램에 대해 알아봅니다.' }
-          ],
-          img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800',
-          url: 'https://www.rowlandschools.org/'
-        },
         science: {
           title: '캘리포니아 사이언스 센터',
           address: '700 Exposition Park Dr, Los Angeles, CA',
@@ -416,19 +416,6 @@
           ],
           img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
           url: 'https://californiasciencecenter.org/'
-        },
-        natural: {
-          title: 'LA 자연사 박물관',
-          address: '900 Exposition Blvd, Los Angeles, CA',
-          desc: '공룡 화석부터 보석, 광물까지 방대한 컬렉션을 자랑하는 박물관입니다. 웅장한 공룡 홀이 유명합니다.',
-          highlights: ['공룡 홀(Dinosaur Hall)', '보석 전시관', '자연 정원'],
-          points: [
-            { name: 'Dinosaur Hall', detail: '티라노사우루스 렉스(T-Rex)의 성장 단계별 화석 3개를 동시에 전시한 세계 유일의 공간입니다.' },
-            { name: 'Gem & Mineral', detail: '2,000점 이상의 희귀한 보석과 광물이 전시된 화려한 공간을 둘러보세요.' },
-            { name: 'Nature Gardens', detail: '박물관 야외에 조성된 생태 정원에서 다양한 식물과 곤충을 관찰하며 휴식할 수 있습니다.' }
-          ],
-          img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
-          url: 'https://nhm.org/'
         },
         getty: {
           title: '게티 센터 (The Getty Center)',
@@ -475,18 +462,6 @@
           img: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800',
           url: 'https://www.rowlandschools.org/'
         },
-        rowlandhigh: {
-          title: 'Rowland High School',
-          address: '2000 Otterbein Ave, Rowland Heights, CA',
-          desc: '우수한 학업 성취도와 다양한 특별 활동으로 유명한 명문 공립 고등학교입니다. CTE(직업 교육) 시설이 뛰어납니다.',
-          highlights: ['블루 리본 스쿨', '직업 교육(CTE)', '학생 교류'],
-          points: [
-            { name: 'CTE Facilities', detail: '의료, 공학, 예술 등 다양한 직업 분야를 미리 체험할 수 있는 전문 실습실을 견학합니다.' },
-            { name: 'Class Observation', detail: '실제 수업 현장을 참관하며 미국의 토론식 수업 문화와 학생들의 활동을 지켜봅니다.' },
-            { name: 'Student Life', detail: '넓은 캠퍼스와 체육 시설, 동아리 활동 등 미국 고등학생들의 학교 생활을 엿봅니다.' }
-          ],
-          img: 'https://images.unsplash.com/photo-1562774053-701939374585?w=800'
-        },
         kecw: {
           title: 'LA 한국교육원 (KECLA)',
           address: '680 Wilshire Pl #200, Los Angeles, CA',
@@ -504,17 +479,6 @@
             { name: 'Resource Center', detail: '한국 알리기 도서와 자료들이 비치된 공간을 둘러보며 교육원의 역할을 이해합니다.' }
           ],
           img: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800'
-        },
-        kimLecture: {
-          title: '[특강] 김선호 박사',
-          desc: 'USC(남가주대학교)에서 진행되는 IT/AI 교육 방향 특강입니다.',
-          speaker: {
-            name: '김선호 박사',
-            title: 'USC 데이터 사이언스 교수',
-            bio: '멀티미디어 시스템, 공간정보 데이터베이스, 기계학습, 빅데이터 분석 분야에서 100여 편의 논문과 저서를 발표한 세계적인 학자입니다. 현재 미국 남가주대학교(USC)에서 데이터 사이언스를 강의하고 있으며, AI와 교육의 융합, 에듀테크 혁신에 대한 연구를 진행하고 있습니다.',
-            topic: 'IT, AI 디지털 및 에듀테크 교육 방향'
-          },
-          img: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800'
         }
       };
 
@@ -529,28 +493,26 @@
       // 7. 식당 정보
       const restaurantData = [
         { day: 1, meals: [{ type: '중식', name: '정순이네 밥상', category: '한식', loc: '인천' }, { type: '석식', name: 'Pier 39 자유식', category: '$20 지급', loc: 'SF' }] },
-        { day: 2, meals: [{ type: '중식', name: '한식당', category: '한식', loc: 'SF' }, { type: '석식', name: "Tad's Steakhouse", category: '스테이크 특식', loc: 'SF' }] },
+        { day: 2, meals: [{ type: '중식', name: '현지식', category: '-', loc: 'SF' }, { type: '석식', name: "자유식/현지식", category: '-', loc: 'SF' }] },
         { day: 3, meals: [{ type: '중식', name: 'Hokkaido Buffet', category: '일식 뷔페', loc: 'SF' }, { type: '석식', name: "Pedro's Restaurant", category: '멕시칸', loc: '몬터레이' }] },
         { day: 4, meals: [{ type: '중식', name: 'Steak & Anchor', category: '스테이크', loc: '요세미티' }, { type: '석식', name: 'YeoGiYo', category: '한식', loc: 'LA' }] },
         { day: 5, meals: [{ type: '중식', name: '자유식', category: '-', loc: 'LA' }, { type: '석식', name: 'Cheesecake Factory', category: '양식 특식', loc: 'LA' }] },
-        { day: 6, meals: [{ type: '중식', name: 'Rowland HS 도시락', category: '도시락', loc: 'LA' }, { type: '석식', name: '북창동 순두부', category: '한식', loc: 'LA' }] },
+        { day: 6, meals: [{ type: '중식', name: '자유식/도시락', category: '-', loc: 'LA' }, { type: '석식', name: '북창동 순두부', category: '한식', loc: 'LA' }] },
         { day: 7, meals: [{ type: '조식', name: '호텔 조식', category: '-', loc: 'LA' }] },
         { day: 8, meals: [{ type: '석식', name: '정순이네 밥상', category: '한식', loc: '인천' }] }
       ];
 
-      // 8. 일정 데이터 (1~4일차)
+      // 8. 일정 데이터 (업데이트됨)
       const scheduleData = [
         {
           day: 1, date: '2/8 (일)', loc: '안동 ✈️ 샌프란시스코',
           events: [
-            { time: '09:00', title: '경상북도교육청 집결', desc: '인천국제공항으로 출발', type: 'meet' },
+            { time: '08:30', title: '경상북도교육청 집결', desc: '인천국제공항으로 출발', type: 'meet' },
             { time: '12:30', title: '중식', desc: '정순이네 밥상 (한식)', type: 'meal' },
             { time: '14:00', title: '인천공항 도착', desc: '인원점검 및 출국 수속', type: 'meet' },
             { time: '16:00', title: '출국 (KE023)', desc: '인천 → 샌프란시스코 (약 10시간 40분)', type: 'flight' },
             { time: '09:30', title: '🇺🇸 샌프란시스코 도착', desc: '입국 수속 및 가이드 미팅', type: 'arrive' },
-            { time: '13:00', title: '중식', desc: '현지식', type: 'meal' },
-            { time: '14:00', title: 'Googleplex & 인텔뮤지엄', desc: '구글 본사, Intel Museum 탐방', type: 'visit', infoKey: 'google' },
-            { time: '15:30', title: 'Golden Gate & Pier 39', desc: '금문교, 피어 39 관광', type: 'activity', infoKey: 'goldengate' },
+            { time: '13:00', title: '중식 및 관광', desc: '금문교(Golden Gate), 피어 39(Pier 39)', type: 'activity', infoKey: 'goldengate' },
             { time: '17:30', title: '석식 (자유식)', desc: 'Pier 39 / $20 지급', type: 'meal', infoKey: 'pier39' },
             { time: '18:30', title: '호텔 체크인', desc: 'Aloft Silicon Valley Hotel', type: 'stay' }
           ]
@@ -559,39 +521,38 @@
           day: 2, date: '2/9 (월)', loc: '샌프란시스코',
           events: [
             { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '08:00', title: '에듀테크 기업으로 이동', desc: '전용차량', type: 'move' },
-            { time: '09:00', title: '[공식] CODE.ORG 방문', desc: '컴퓨터 과학/AI 교육 비영리 기관', type: 'official', infoKey: 'codeorg' },
-            { time: '11:40', title: '중식', desc: '한식', type: 'meal' },
-            { time: '12:40', title: '[공식] Bellarmine College Prep', desc: '명문 사립고 탐방', type: 'official', infoKey: 'bellarmine' },
-            { time: '14:30', title: '[공식] SF 공립 도서관', desc: '개방형 학습 공간 견학', type: 'official', infoKey: 'sflibrary' },
-            { time: '18:30', title: '석식', desc: "Tad's Steakhouse (특식)", type: 'meal' },
-            { time: '19:30', title: '호텔 이동', desc: 'Aloft Silicon Valley Hotel', type: 'stay' }
+            { time: '08:00', title: '구글(Google)로 이동', desc: 'Googleplex, 인텔뮤지엄 방문', type: 'visit', infoKey: 'google' },
+            { time: '12:00', title: '중식', desc: '현지식', type: 'meal' },
+            { time: '13:30', title: '[공식] Bellarmine College Prep', desc: '학교 시설 탐방', type: 'official', infoKey: 'bellarmine' },
+            { time: '15:30', title: '[공식] CODE.ORG', desc: '비영리 교육기관 및 플랫폼 방문', type: 'official', infoKey: 'codeorg' },
+            { time: '18:30', title: '석식', desc: '현지식', type: 'meal' },
+            { time: '19:30', title: '호텔 휴식', desc: 'Aloft Silicon Valley Hotel', type: 'stay' }
           ]
         },
         {
           day: 3, date: '2/10 (화)', loc: '샌프란 🚌 몬터레이 🚌 머세드',
           events: [
             { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '09:00', title: '스탠포드 대학으로 이동', desc: '전용차량', type: 'move' },
-            { time: '10:00', title: '[공식] 스탠포드 대학교', desc: '캠퍼스 투어', type: 'official', infoKey: 'stanford' },
-            { time: '10:30', title: '[특강] 황준혁 박사', desc: 'AI 연구 방향 및 교육 영향', type: 'official', infoKey: 'stanfordLecture' },
-            { time: '12:00', title: '중식', desc: 'Hokkaido Buffet (일식 뷔페)', type: 'meal' },
-            { time: '14:30', title: '17마일 드라이브', desc: '페블비치 해안 절경 감상', type: 'activity', infoKey: 'mile17' },
-            { time: '17:00', title: '석식', desc: "Pedro's Restaurant (멕시칸)", type: 'meal' },
-            { time: '18:00', title: '머세드 이동', desc: 'Holiday Inn Express Merced', type: 'stay' }
+            { time: '08:00', title: '도서관으로 이동', desc: '전용차량', type: 'move' },
+            { time: '09:20', title: '[공식] SF 공립 도서관', desc: '황준혁 박사 미팅 및 견학', type: 'official', infoKey: 'sflibrary' },
+            { time: '11:00', title: '[공식] 스탠포드 대학교', desc: '캠퍼스 투어', type: 'official', infoKey: 'stanford' },
+            { time: '12:30', title: '중식', desc: 'Hokkaido Buffet (대학방문 뷔페)', type: 'meal' },
+            { time: '14:30', title: '17마일 드라이브', desc: '몬테레이 반도 해안 고속도로', type: 'activity', infoKey: 'mile17' },
+            { time: '17:00', title: '석식', desc: "Pedro's Restaurant (현지식)", type: 'meal' },
+            { time: '18:00', title: '호텔 체크인', desc: 'Holiday Inn Express Merced', type: 'stay' }
           ]
         },
         {
           day: 4, date: '2/11 (수)', loc: '요세미티 🚌 LA',
           events: [
             { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '08:30', title: '요세미티 출발', desc: '전용차량', type: 'move' },
-            { time: '11:00', title: '요세미티 국립공원', desc: '엘 카피탄, 면사포 폭포 탐방', type: 'visit', infoKey: 'yosemite' },
-            { time: '12:00', title: '중식', desc: 'Steak & Anchor Restaurant', type: 'meal' },
-            { time: '13:00', title: 'Kern County Museum 이동', desc: '전용차량', type: 'move' },
-            { time: '14:00', title: 'Kern County Museum', desc: '지역 역사 박물관 관람', type: 'visit', infoKey: 'kerncounty' },
+            { time: '08:30', title: '요세미티로 출발', desc: '전용차량', type: 'move' },
+            { time: '11:00', title: '요세미티 국립공원', desc: '엘 카피탄, 면사포 폭포', type: 'visit', infoKey: 'yosemite' },
+            { time: '12:00', title: '중식', desc: 'Steak & Anchor Restaurant (스테이크)', type: 'meal' },
+            { time: '13:00', title: '컨 카운티 박물관 이동', desc: '전용차량', type: 'move' },
+            { time: '14:30', title: 'Kern County Museum', desc: '지역 역사 박물관 관람', type: 'visit', infoKey: 'kerncounty' },
             { time: '18:00', title: '석식', desc: 'YeoGiYo (한식)', type: 'meal' },
-            { time: '20:00', title: 'LA 도착', desc: 'Hampton Inn LA/Santa Clarita', type: 'stay' }
+            { time: '20:00', title: 'LA 도착 및 체크인', desc: 'Hampton Inn LA/Santa Clarita', type: 'stay' }
           ]
         },
         {
@@ -599,36 +560,31 @@
           events: [
             { time: '06:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
             { time: '08:00', title: '학교로 출발', desc: '전용차량', type: 'move' },
-            { time: '09:30', title: '[공식] Roybal Learning Center', desc: 'CS아카데미, 로보틱스', type: 'official', infoKey: 'roybal' },
+            { time: '09:30', title: '사이언스센터 & 자연사박물관', desc: '미국 역사문화배경고찰', type: 'visit', infoKey: 'science' },
             { time: '12:00', title: '중식', desc: '자유식', type: 'meal' },
-            { time: '14:00', title: '선택관광 (1호차)', desc: '사이언스센터 & 자연사박물관', type: 'activity', infoKey: 'science' },
-            { time: '14:00', title: '선택관광 (2호차)', desc: 'J. Paul Getty Museum', type: 'activity', infoKey: 'getty' },
-            { time: '18:00', title: '석식', desc: 'Cheesecake Factory (특식)', type: 'meal' },
-            { time: '19:00', title: '그리피스 천문대', desc: 'LA 야경 조망', type: 'activity', infoKey: 'griffith' },
-            { time: '21:00', title: '호텔 체크인', desc: 'Fairfield LAX', type: 'stay' }
+            { time: '14:00', title: 'J. Paul Getty Museum', desc: '게티센터 관람', type: 'activity', infoKey: 'getty' },
+            { time: '18:00', title: '석식 / 그리피스 천문대', desc: 'Cheesecake Factory (특식) & 야경', type: 'activity', infoKey: 'griffith' },
+            { time: '21:00', title: '호텔 체크인', desc: 'Fairfield By Marriott LAX', type: 'stay' }
           ]
         },
         {
           day: 6, date: '2/13 (금)', loc: 'LA',
           events: [
             { time: '08:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '09:00', title: '롤랜드 교육통합구 이동', desc: '전용차량', type: 'move' },
-            { time: '09:30', title: '[공식] Rowland 교육통합구', desc: 'Ellen Park 교육감 특강 & MOU', type: 'official', infoKey: 'rowland' },
-            { time: '10:30', title: '[공식] Rowland High School', desc: '디지털 혁신 교육 현장 탐방', type: 'official', infoKey: 'rowlandhigh' },
-            { time: '12:30', title: '중식', desc: 'Rowland High School 도시락', type: 'meal' },
-            { time: '13:00', title: '[공식] 한국교육문화원', desc: '기관 방문', type: 'official', infoKey: 'kecw' },
-            { time: '15:30', title: '[특강] 강전훈 교육원장', desc: '재미 한인 교육 현황', type: 'official', infoKey: 'kecw' },
-            { time: '16:40', title: '[특강] 김선호 박사', desc: 'IT, AI 디지털 및 에듀테크 교육', type: 'official', infoKey: 'kimLecture' },
+            { time: '09:00', title: '롤랜드 교육통합구로 출발', desc: '전용차량', type: 'move' },
+            { time: '09:30', title: '[공식] Rowland Unified', desc: 'Ellen Park 교육감 미팅 & MOU 협의', type: 'official', infoKey: 'rowland' },
+            { time: '12:30', title: '중식', desc: '현지식', type: 'meal' },
+            { time: '14:00', title: '[공식] 한국교육문화원', desc: '강전훈 교육원장 미팅', type: 'official', infoKey: 'kecw' },
             { time: '18:00', title: '석식', desc: '북창동 순두부 (한식)', type: 'meal' },
-            { time: '19:00', title: '호텔 이동', desc: 'Fairfield LAX', type: 'stay' }
+            { time: '19:00', title: '호텔 이동', desc: 'Fairfield By Marriott LAX', type: 'stay' }
           ]
         },
         {
           day: 7, date: '2/14 (토)', loc: 'LA ✈️ 인천',
           events: [
             { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '08:00', title: '공항 이동', desc: 'LAX 국제공항으로 출발', type: 'move' },
-            { time: '08:30', title: 'LAX 공항 도착', desc: '출국 수속', type: 'meet' },
+            { time: '08:00', title: '공항으로 출발', desc: 'LAX 국제공항', type: 'move' },
+            { time: '08:30', title: '공항 도착', desc: '출국 수속', type: 'meet' },
             { time: '10:50', title: 'LA 출발 (KE012)', desc: 'LA → 인천 (약 13시간 30분)', type: 'flight' }
           ]
         },
