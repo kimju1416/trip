@@ -494,7 +494,7 @@
       const restaurantData = [
         { day: 1, meals: [{ type: '중식', name: '정순이네 밥상', category: '한식', loc: '인천' }, { type: '석식', name: 'Pier 39 자유식', category: '$20 지급', loc: 'SF' }] },
         { day: 2, meals: [{ type: '중식', name: '현지식', category: '-', loc: 'SF' }, { type: '석식', name: "자유식/현지식", category: '-', loc: 'SF' }] },
-        { day: 3, meals: [{ type: '중식', name: 'Hokkaido Buffet', category: '일식 뷔페', loc: 'SF' }, { type: '석식', name: "Pedro's Restaurant", category: '멕시칸', loc: '몬터레이' }] },
+        { day: 3, meals: [{ type: '중식', name: '스탠포드 카페테리아', category: '자유식 ($20)', loc: '스탠포드' }, { type: '석식', name: "Pedro's Restaurant", category: '멕시칸', loc: '몬터레이' }] },
         { day: 4, meals: [{ type: '중식', name: 'Steak & Anchor', category: '스테이크', loc: '요세미티' }, { type: '석식', name: 'YeoGiYo', category: '한식', loc: 'LA' }] },
         { day: 5, meals: [{ type: '중식', name: '자유식', category: '-', loc: 'LA' }, { type: '석식', name: 'Cheesecake Factory', category: '양식 특식', loc: 'LA' }] },
         { day: 6, meals: [{ type: '중식', name: '자유식/도시락', category: '-', loc: 'LA' }, { type: '석식', name: '북창동 순두부', category: '한식', loc: 'LA' }] },
@@ -539,14 +539,23 @@
         {
           day: 3, date: '2/10 (화)', loc: '샌프란 🚌 몬터레이 🚌 머세드',
           events: [
-            { time: '07:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '08:00', title: '도서관으로 이동', desc: '전용차량', type: 'move' },
-            { time: '09:20', title: '[공식] SF 공립 도서관', desc: '황준혁 박사 미팅 및 견학', type: 'official', infoKey: 'sflibrary' },
-            { time: '11:00', title: '[공식] 스탠포드 대학교', desc: '캠퍼스 투어', type: 'official', infoKey: 'stanford' },
-            { time: '12:30', title: '중식', desc: 'Hokkaido Buffet (대학방문 뷔페)', type: 'meal' },
-            { time: '14:30', title: '17마일 드라이브', desc: '몬테레이 반도 해안 고속도로', type: 'activity', infoKey: 'mile17' },
-            { time: '17:00', title: '석식', desc: "Pedro's Restaurant (현지식)", type: 'meal' },
-            { time: '18:00', title: '호텔 체크인', desc: 'Holiday Inn Express Merced', type: 'stay' }
+            { 
+              time: '', 
+              title: '📸 일정 안내', 
+              desc: '3일차 일정표', 
+              type: 'image', 
+              imageUrl: 'https://raw.githubusercontent.com/kimju1416/pefit/main/33.png'
+            },
+            { time: '06:30', title: '기상', desc: '개인 정비', type: 'meet' },
+            { time: '07:30', title: '조식', desc: '호텔 조식', type: 'meal' },
+            { time: '08:25', title: '로비 집결', desc: '인원 점검 및 출발', type: 'meet' },
+            { time: '09:30', title: '[공식] SF 공립 도서관', desc: '황준혁 박사 미팅 및 견학', type: 'official', infoKey: 'sflibrary' },
+            { time: '12:00', title: '[공식] 스탠포드 특강', desc: '캠퍼스 투어 및 특강', type: 'official', infoKey: 'stanford' },
+            { time: '13:00', title: '중식 (자유식)', desc: '스탠포드 카페테리아 ($20 지급)', type: 'meal' },
+            { time: '13:45', title: '학교 출발', desc: '몬터레이로 이동', type: 'move' },
+            { time: '16:00', title: '17마일 드라이브', desc: '해안 절경 감상', type: 'activity', infoKey: 'mile17' },
+            { time: '18:00', title: '석식', desc: "Pedro's Restaurant (현지식)", type: 'meal' },
+            { time: '20:30', title: '호텔 도착', desc: 'Holiday Inn Express Merced', type: 'stay' }
           ]
         },
         {
@@ -991,4 +1000,3 @@
     </script>
   </body>
 </html>
-
