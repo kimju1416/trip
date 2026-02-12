@@ -834,7 +834,7 @@
                                 {event.type === 'stay' && <span className="text-[10px] bg-indigo-900 text-white px-2 py-0.5 rounded-full font-bold">숙소</span>}
                               </div>
                               <h3 className="text-gray-900 font-bold text-lg">{event.title}</h3>
-                              <p className="text-gray-600 text-sm mt-1">{event.desc}</p>
+                              <p className="text-gray-600 text-sm mt-1 whitespace-pre-line">{event.desc}</p>
                               {event.infoKey && <button onClick={() => setSelectedInfo(locationInfos[event.infoKey])} className="mt-3 flex items-center gap-1 text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-50"><Icons.Info /> 정보 보기</button>}
                             </>
                           )}
@@ -1026,3 +1026,4 @@
     </script>
   </body>
 </html>
+
