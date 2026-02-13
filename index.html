@@ -596,13 +596,20 @@
         {
           day: 6, date: '2/13 (금)', loc: 'LA',
           events: [
-            { time: '08:00', title: '기상 및 조식', desc: '호텔 조식', type: 'meal' },
-            { time: '09:00', title: '롤랜드 교육통합구로 출발', desc: '전용차량', type: 'move' },
-            { time: '09:30', title: '[공식] Rowland Unified', desc: 'Ellen Park 교육감 미팅 & MOU 협의', type: 'official', infoKey: 'rowland' },
-            { time: '12:30', title: '중식', desc: '현지식', type: 'meal' },
-            { time: '14:00', title: '[공식] 한국교육문화원', desc: '강전훈 교육원장 미팅', type: 'official', infoKey: 'kecw' },
-            { time: '18:00', title: '석식', desc: '북창동 순두부 (한식)', type: 'meal' },
-            { time: '19:00', title: '호텔 이동', desc: 'Fairfield By Marriott LAX', type: 'stay' }
+            {
+              time: '',
+              title: '📸 일정 안내',
+              desc: '6일차 일정표',
+              type: 'image',
+              imageUrl: 'https://raw.githubusercontent.com/kimju1416/pefit/main/55.jpg'
+            },
+            { time: '08:00', title: '호텔 출발', desc: '전용차량', type: 'move' },
+            { time: '09:15', title: '첫 번째 학교 도착', desc: '학교 방문 및 교류', type: 'official' },
+            { time: '12:00', title: '중식', desc: '도시락', type: 'meal' },
+            { time: '13:15', title: '두 번째 학교 방문', desc: '학교 방문 및 교류', type: 'official' },
+            { time: '15:30', title: '[공식] LA 한국교육원', desc: '교육원 방문 및 미팅', type: 'official', infoKey: 'kecw' },
+            { time: '17:30', title: '석식', desc: '식사 후 호텔 복귀', type: 'meal' },
+            { time: '19:00', title: '호텔 휴식', desc: 'Fairfield By Marriott LAX', type: 'stay' }
           ]
         },
         {
@@ -834,7 +841,7 @@
                                 {event.type === 'stay' && <span className="text-[10px] bg-indigo-900 text-white px-2 py-0.5 rounded-full font-bold">숙소</span>}
                               </div>
                               <h3 className="text-gray-900 font-bold text-lg">{event.title}</h3>
-                              <p className="text-gray-600 text-sm mt-1 whitespace-pre-line">{event.desc}</p>
+                              <p className="text-gray-600 text-sm mt-1 whitespace-pre-wrap">{event.desc}</p>
                               {event.infoKey && <button onClick={() => setSelectedInfo(locationInfos[event.infoKey])} className="mt-3 flex items-center gap-1 text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-50"><Icons.Info /> 정보 보기</button>}
                             </>
                           )}
@@ -1026,4 +1033,3 @@
     </script>
   </body>
 </html>
-
